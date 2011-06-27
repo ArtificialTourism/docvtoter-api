@@ -1,0 +1,20 @@
+<collection>
+    <PHPFrame_PluginInfo>
+        <name>PHPFrame_URLRewriter</name>
+        <channel />
+        <summary />
+        <description />
+        <author />
+        <date />
+        <version></version>
+        <license></license>
+        <license_url></license_url>
+        <enabled>1</enabled>
+        <id>1</id>
+        <ctime>1252985443</ctime>
+        <mtime>1252985443</mtime>
+        <owner>1</owner>
+        <group>1</group>
+        <perms>664</perms>
+    </PHPFrame_PluginInfo>
+</collection>

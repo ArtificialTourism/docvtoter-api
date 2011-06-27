@@ -1,0 +1,6 @@
+# This is an example htaccess file. To use it remember to rename it to 
+# .htaccess
+
+RewriteEngine on
+#RewriteBase /
+RewriteRule !\.(ico|js|gif|jpg|png|css|swf|txt)$ index.php

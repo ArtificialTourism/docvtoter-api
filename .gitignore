@@ -1,0 +1,7 @@
+.buildpath
+.project
+.settings
+etc/phpframe.ini
+tmp/
+var/
+
