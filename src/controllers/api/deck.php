@@ -41,17 +41,15 @@ class DeckApiController extends PHPFrame_RESTfulController
     }
 
     /**
-     * Get user(s).
+     * Get card(s).
      *
-     * @param int $id    [Optional] if specified a single card will be returned.
-     * @param int $limit [Optional] Default value is 10.
-     * @param int $page  [Optional] Default value is 1.
+     * @param int $id       deck to be returned.
      *
      * @return array|object Either a single card object or an array containing
      *                      card objects.
      * @since  1.0
      */
-    public function get($id=null)
+    public function get($id)
     {
         if (empty($id)) {
             $id = null;
