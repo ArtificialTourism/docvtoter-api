@@ -95,12 +95,12 @@ class EventcardsApiController extends PHPFrame_RESTfulController
         $params = array(":event_id"=>$event_id, ":card_id"=>$card_id);
         
         //check for existing/duplicate entry
-        $id_obj = $this->db()->getIdObject();
+        $id_obj = $this->_getMapper()->getIdObject();
         $id_obj->where('event_id','=',':event_id')
         ->where('card_id','=',':card_id')
         ->params(':event_id',$event_id)
         ->params(':card_id',$card_id);
-        $eventcard = $this->_getMapper()->find($id_obj);
+        $eventcard = $this->_getMapper()->findOne($id_obj);
         
         if(isset($eventcard) && $eventcard->id() > 0)
         {
@@ -133,7 +133,7 @@ class EventcardsApiController extends PHPFrame_RESTfulController
         }
         
         //check if entry exists
-        $id_obj = $this->db()->getIdObject();
+        $id_obj = $this->_getMapper()->getIdObject();
         $id_obj->where('event_id','=',':event_id')
         ->where('card_id','=',':card_id')
         ->params(':event_id',$event_id)
@@ -176,7 +176,7 @@ class EventcardsApiController extends PHPFrame_RESTfulController
     private function _getMapper()
     {
         if (is_null($this->_eventcards_mapper)) {
-            $this->_eventcards_mapper = new EventardsMapper( $this->db());
+            $this->_eventcards_mapper = new PHPFrame_Mapper('eventcards',$this->db());
         }
 
         return $this->_eventcards_mapper;

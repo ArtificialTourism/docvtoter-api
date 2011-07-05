@@ -42,19 +42,19 @@ class Event extends PHPFrame_PersistentObject
         );
         $this->addField(
             "allow_anon",
-            null,
+            1,
             false,
             new PHPFrame_BoolFilter()
         );
         $this->addField(
             "auto_publish",
-            null,
+            1,
             false,
             new PHPFrame_BoolFilter()
         );
         $this->addField(
             "auto_close",
-            null,
+            1,
             false,
             new PHPFrame_BoolFilter()
         );

@@ -77,7 +77,7 @@ class TagApiController extends PHPFrame_RESTfulController
         }
         
         //check duplicate name
-        $id_obj = $this->_getMapper()->getIdObj();
+        $id_obj = $this->_getMapper()->getIdObject();
         $id_obj->where('name','=',':name')
         ->params(':name',$name);
         $tag = $this->_getMapper()->findOne($id_obj);
@@ -85,7 +85,7 @@ class TagApiController extends PHPFrame_RESTfulController
         //if not duplicate, create new tag
         if(!isset($tag) || $tag->id() == 0)
         {
-        	$tag = new Tag();
+        	$tag = new Tags();
         	$tag->name($name);
         	$this->_getMapper()->insert($tag);
         }
@@ -105,7 +105,7 @@ class TagApiController extends PHPFrame_RESTfulController
         
         //find tag
         if(isset($id)) {
-            $tag = $this->_getMapper()->findOne($id);
+            $tag = $this->_getMapper()->findOne(intval($id));
             
             //tag not found, set error statuscode
             if(!isset($tag) || $tag->id() == 0)
@@ -137,7 +137,7 @@ class TagApiController extends PHPFrame_RESTfulController
     private function _getMapper()
     {
         if (is_null($this->_mapper)) {
-            $this->_mapper = new PHPFrame_Mapper('tag', $this->db());
+            $this->_mapper = new PHPFrame_Mapper('tags', $this->db());
         }
 
         return $this->_mapper;

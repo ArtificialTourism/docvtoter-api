@@ -96,19 +96,17 @@ class DeckcardApiController extends PHPFrame_RESTfulController
         
         //check for existing/duplicate entry
         $sql = "SELECT * FROM cardstodeck WHERE deck_id = :deck_id AND card_id = :card_id";
-        $deckcard = $db->query($sql, $params);
-        
-        if(count($deckcard) > 0)
+        $deckcard = $db->fetchAssoc($sql, $params); 
+
+        if(!isset($deckcard['card_id']) || !$deckcard['deck_id'])
         {
-            $ret = $deckcard[0];
-        } else {
             $insert_sql = "INSERT INTO cardstodeck (deck_id, card_id) values(:deck_id, :card_id)";
             $db->query($insert_sql, $params);
         }
 
-        $deckcard = $db->query($sql, $params);
-        if(count($deckcard) > 0) {
-            return $this->handleReturnValue($deckcard[0]);
+        $deckcard = $db->fetchAssoc($sql, $params);
+        if(isset($deckcard['card_id']) && $deckcard['deck_id']) {
+            return $this->handleReturnValue($deckcard);
         } else {
         	$this->response()->statusCode(PHPFrame_Response::STATUS_BAD_REQUEST);
             return;
@@ -130,12 +128,13 @@ class DeckcardApiController extends PHPFrame_RESTfulController
         
         //check if entry exists
         $sql = "SELECT * FROM cardstodeck WHERE deck_id = :deck_id AND card_id = :card_id";
-        $deckcard = $db->query($sql, $params);
-        
-        if(count($deckcard) > 0)
+        $deckcard = $db->fetchAssoc($sql, $params);
+
+        if(isset($deckcard['card_id']) && $deckcard['card_id'])
         {
         	//if it exists, delete
-        	$delete_sql = "DELETE FROM cardstodeck WHERE 'deck_id' = :deck_id AND 'card_id' = :card_id)";
+        	$delete_sql = "DELETE FROM cardstodeck WHERE deck_id = :deck_id AND card_id = :card_id";
+        	$db->query($delete_sql,$params);
         } else {
         	//report error if it entry does not exist
             $this->response()->statusCode(PHPFrame_Response::STATUS_NOT_FOUND);

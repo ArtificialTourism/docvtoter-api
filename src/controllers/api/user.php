@@ -54,7 +54,7 @@ class UserApiController extends PHPFrame_RESTfulController
             $id = null;
         }
         
-        $user = $this->_getMapper()->findOne($id);
+        $user = $this->_getMapper()->findOne(intval($id));
 
         if(!isset($user) || $user->id() == 0)
         {
@@ -87,6 +87,9 @@ class UserApiController extends PHPFrame_RESTfulController
         	if(isset($organisation_id)) $user->organisation_id($organisation_id);
         	
         	$this->_getMapper()->insert($user);
+        	
+        	$user->owner($user->id());
+            $this->_getMapper()->insert($user);
         }
         
         if(!isset($user)) {
@@ -106,7 +109,7 @@ class UserApiController extends PHPFrame_RESTfulController
     	
         //find user
         if(isset($id)) {
-            $user = $this->_getMapper()->findOne($id);
+            $user = $this->_getMapper()->findOne(intval($id));
             
             //user not found, set error statuscode
             if(!isset($user) || $user->id() == 0)
@@ -116,7 +119,7 @@ class UserApiController extends PHPFrame_RESTfulController
             }
             
             //update user
-            if(isset($username)) $user->usuername($username);
+            if(isset($username)) $user->username($username);
             if(isset($role_id)) $user->role_id($role_id);
             if(isset($first_name)) $user->first_name($first_name);
             if(isset($last_name)) $user->last_name($last_name);

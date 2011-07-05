@@ -54,7 +54,7 @@ class EventApiController extends PHPFrame_RESTfulController
             $id = null;
         }
         
-        $event = $this->_getMapper()->findOne($id);
+        $event = $this->_getMapper()->findOne(intval($id));
 
         if(!isset($event) || $event->id() == 0)
         {
@@ -109,7 +109,7 @@ class EventApiController extends PHPFrame_RESTfulController
     	
         //find event
         if(isset($id)) {
-            $event = $this->_getMapper()->findOne($id);
+            $event = $this->_getMapper()->findOne(intval($id));
             
             //event not found, set error statuscode
             if(!isset($event) || $event->id() == 0)

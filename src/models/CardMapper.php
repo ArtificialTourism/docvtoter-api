@@ -19,8 +19,6 @@ class CardMapper extends PHPFrame_Mapper
     
     public function findByEventId($event_id)
     {
-        $collection = $this->find($id_obj);
-        
         $id_obj = $this->getIdObject();
         $table = $id_obj->getTableName();
         $id_obj->select($table.".*")

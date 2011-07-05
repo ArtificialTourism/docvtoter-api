@@ -101,7 +101,7 @@ class EventtypeApiController extends PHPFrame_RESTfulController
         //create eventeventtype
         $eventtype = new Eventeventtype();
         $eventtype->event_id($event_id);
-        $eventtype->eventtype_id($eventtype_id);
+        $eventtype->type_id($eventtype_id);
         $this->_getMapper()->insert($eventtype);
                 
         //return newly created eventeventtype mapping
@@ -122,9 +122,9 @@ class EventtypeApiController extends PHPFrame_RESTfulController
         if(isset($event_id) && isset($eventtype_id)) {
         	$id_obj = $this->_getMapper()->getIdObject();
         	$id_obj->where('event_id','=',':event_id')
-        	->where('eventtype_id','=',':eventtype_id')
+        	->where('type_id','=',':type_id')
         	->params(':event_id',$event_id)
-        	->params(':eventtype_id',$eventtype_id);
+        	->params(':type_id',$eventtype_id);
             $eventtype = $this->_getMapper()->findOne($id_obj);
             
             //eventtype not found, set error statuscode

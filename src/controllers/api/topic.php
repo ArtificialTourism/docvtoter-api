@@ -77,7 +77,7 @@ class TopicApiController extends PHPFrame_RESTfulController
         }
         
         //check duplicate name
-        $id_obj = $this->_getMapper()->getIdObj();
+        $id_obj = $this->_getMapper()->getIdObject();
         $id_obj->where('name','=',':name')
         ->params(':name',$name);
         $topic = $this->_getMapper()->findOne($id_obj);
@@ -105,7 +105,7 @@ class TopicApiController extends PHPFrame_RESTfulController
         
         //find topic
         if(isset($id)) {
-            $topic = $this->_getMapper()->findOne($id);
+            $topic = $this->_getMapper()->findOne(intval($id));
             
             //topic not found, set error statuscode
             if(!isset($topic) || $topic->id() == 0)

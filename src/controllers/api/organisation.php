@@ -101,7 +101,7 @@ class OrganisationApiController extends PHPFrame_RESTfulController
         return $this->handleReturnValue($organisation);
     }
     
-    public function put($id, $name=null, $location_id=null, $parent_id=null)
+    public function put($id, $name=null, $location_id=null, $parent_id=null, $sector=null)
     {
         if (empty($id)) {
             $id = null;
@@ -109,7 +109,7 @@ class OrganisationApiController extends PHPFrame_RESTfulController
     	
         //find organisation
         if(isset($id)) {
-            $organisation = $this->_getMapper()->findOne($id);
+            $organisation = $this->_getMapper()->findOne(intval($id));
             
             //organisation not found, set error statuscode
             if(!isset($organisation) || $organisation->id() == 0)
@@ -122,6 +122,7 @@ class OrganisationApiController extends PHPFrame_RESTfulController
             if(isset($name)) $organisation->name($name);
             if(isset($location_id)) $organisation->location_id($location_id);
             if(isset($parent_id)) $organisation->parent_id($parent_id);
+            if(isset($sector)) $organisation->sector($sector);
             
             $this->_getMapper()->insert($organisation);
         }
