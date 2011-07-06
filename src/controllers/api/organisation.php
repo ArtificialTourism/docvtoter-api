@@ -145,7 +145,7 @@ class OrganisationApiController extends PHPFrame_RESTfulController
     private function _getMapper()
     {
         if (is_null($this->_mapper)) {
-            $this->_mapper = new PHPFrame_Mapper('organisation', $this->db());
+            $this->_mapper = new OrganisationMapper($this->db());
         }
 
         return $this->_mapper;

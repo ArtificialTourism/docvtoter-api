@@ -73,6 +73,10 @@ class UserApiController extends PHPFrame_RESTfulController
             $name = null;
         }
         
+        if(!$this->_is_unique($username)) {
+            $username = null;
+        }
+        
         if (empty($role_id)) {
             $start = null;
         }
@@ -105,6 +109,10 @@ class UserApiController extends PHPFrame_RESTfulController
     {
         if (empty($id)) {
             $id = null;
+        }
+        
+        if(!$this->_is_unique($username)) {
+        	$username = null;
         }
     	
         //find user
@@ -157,6 +165,15 @@ class UserApiController extends PHPFrame_RESTfulController
             //delete user
             $this->_getMapper()->delete($user);
         }
+    }
+    
+    private function _is_unique($username) {
+    	if(!isset($username) || empty($username)) return false;
+    	$id_obj = $this->_getMapper()->getIdObject();
+    	$id_obj->where('username','=',':username')
+    	->params(':username',$username);
+    	$existing = $this->_getMapper()->findOne($id_obj);
+    	return !isset($existing) || !$existing->id();
     }
 
     /**

@@ -1,6 +1,7 @@
 <?php
-class Organisation extends PHPFrame_PersistentObject
+class Organisation extends PHPFrame_PersistentObject implements PHPFrame_RESTfulObject
 {
+	private $_child_ids;
 	
     public function __construct(array $options=null)
     {
@@ -38,5 +39,21 @@ class Organisation extends PHPFrame_PersistentObject
         );
         
         parent::__construct($options);
+    }
+    
+    public function child_ids($child_ids=null)
+    {
+    	if(isset($child_ids)) {
+    		$this->_child_ids = $child_ids;
+    	}
+    	
+    	return $this->_child_ids;
+    }
+    
+    public function getRESTfulRepresentation()
+    {
+        $restful = iterator_to_array($this);
+        $restful['child_ids'] = $this->_child_ids;
+        return $restful;
     }
 }

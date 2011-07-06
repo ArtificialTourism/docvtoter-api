@@ -16,7 +16,6 @@ class DeckMapper extends PHPFrame_Mapper
         	foreach($cards as $card) {
         		$deck->addCard($card);
         	}
-        	if(!empty($cards) && count($cards))$deck->cards($cards);
         }       
         return $collection;
     }
