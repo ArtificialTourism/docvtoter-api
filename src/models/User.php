@@ -1,5 +1,5 @@
 <?php
-class User extends PHPFrame_PersistentObject
+class User extends PHPFrame_User
 {
 	
     public function __construct(array $options=null)

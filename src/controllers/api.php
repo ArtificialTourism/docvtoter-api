@@ -187,7 +187,7 @@ class ApiController extends PHPFrame_RESTfulController
         if ($this->_isOAuthCall() && $api_method_info["oauth"] > 0) {
             // If we're doing OAuth we make sure we ignore session that could
             // have been passed in cookie and already processed
-            $this->session()->setUser(new User());
+            $this->session()->setUser(new PHPFrame_User());
 
             try {
                 $this->_oauth_server = new OAuthServer(
@@ -195,6 +195,10 @@ class ApiController extends PHPFrame_RESTfulController
                     $this->_getTokensMapper(),
                     $this->config()->get("base_url")."api/oauth/request_token"
                 );
+                
+                if($api_method_info["oauth"] == 2) {
+                    $this->_oauth_server->is2LeggedEndpoint(true);
+                } 
 
                 $this->_oauth_server->checkOAuthRequest();
 

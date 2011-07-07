@@ -27,6 +27,7 @@ class OAuthServer
     private $_oauth_provider, $_oauth_clients_mapper, $_oauth_tokens_mapper;
     private $_oauth_client, $_token;
     private $_cli_params;
+private $_logger;
 
     /**
      * Constructor.
@@ -65,7 +66,6 @@ class OAuthServer
 
             $this->_cli_params = $cli_params;
         }
-
         $this->_oauth_provider = new OAuthProvider($cli_params);
         $this->_oauth_provider->consumerHandler(array($this,'checkConsumer'));
         $this->_oauth_provider->timestampNonceHandler(array($this,'checkTimestampNonce'));
@@ -136,7 +136,7 @@ class OAuthServer
         );
 
         if (!$this->_token instanceof OAuthToken) {
-            return OAUTH_TOKEN_REJECTED;
+        	return OAUTH_TOKEN_REJECTED;
         }
 
         $type = $this->_token->type();
@@ -164,5 +164,10 @@ class OAuthServer
     public function getCallback()
     {
         return $this->_oauth_provider->callback;
+    }
+    
+    public function is2LeggedEndpoint($bool)
+    {
+    	$this->_oauth_provider->is2LeggedEndpoint($bool);
     }
 }
