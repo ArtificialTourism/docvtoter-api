@@ -73,13 +73,16 @@ private $_logger;
         $this->_oauth_provider->setRequestTokenPath($request_token_path);
     }
 
-    public function checkOAuthRequest()
+    public function checkOAuthRequest($method=null)
     {
         if (is_array($this->_cli_params)) {
             return $this->_oauth_provider->checkOAuthRequest(
                 $this->_cli_params["uri"],
                 $this->_cli_params["method"]
             );
+        }
+        if (!is_null($method)) {
+        	$method = strtoupper($method);
         }
 
         return $this->_oauth_provider->checkOAuthRequest();

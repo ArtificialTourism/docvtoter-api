@@ -81,7 +81,7 @@ class CategoryApiController extends PHPFrame_RESTfulController
         }
         
         //check duplicate name & collection
-        $id_obj = $this->_getMapper()->getIdObj();
+        $id_obj = $this->_getMapper()->getIdObject();
         $id_obj->where('name','=',':name')
         ->params(':name',$name);
         if(!isset($collection)) {
@@ -120,7 +120,7 @@ class CategoryApiController extends PHPFrame_RESTfulController
         
         //find category
         if(isset($id)) {
-            $category = $this->_getMapper()->findOne($id);
+            $category = $this->_getMapper()->findOne(intval($id));
             
             //category not found, set error statuscode
             if(!isset($category) || $category->id() == 0)

@@ -54,7 +54,7 @@ class CommentApiController extends PHPFrame_RESTfulController
             $id = null;
         }
         
-        $comment = $this->_getMapper()->findOne($id);
+        $comment = $this->_getMapper()->findOne(intval($id));
 
         if(!isset($comment) || $comment->id() == 0)
         {
@@ -104,7 +104,7 @@ class CommentApiController extends PHPFrame_RESTfulController
         
         //find comment
         if(isset($id)) {
-            $comment = $this->_getMapper()->findOne($id);
+            $comment = $this->_getMapper()->findOne(intval($id));
             
             //comment not found, set error statuscode
             if(!isset($comment) || $comment->id() == 0)
