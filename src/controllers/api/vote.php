@@ -85,12 +85,47 @@ class VoteApiController extends PHPFrame_RESTfulController
 
     }
     
-    public function post($eventcards_id, $ip_address=null, $owner=null)
+    public function post($eventcards_id=null, $event_safe_name=null, $card_id=null, $ip_address=null, $owner=null)
     {
         if (empty($eventcards_id)) {
             $eventcards_id = null;
         }
-        
+
+        if (empty($event_safe_name)) {
+            $event_safe_name = null;
+        }
+
+        if (empty($card_id)) {
+            $card_id = null;
+        }
+
+        if (!is_null($event_safe_name) && !is_null($card_id)) {
+            $event_mapper = new PHPFrame_Mapper('event', $this->db());
+            $id_obj = $event_mapper->getIdObject();
+	        $id_obj->where('safe_name','=',':event_save_name')
+	           ->params('event_safe_name', $event_safe_name);
+	        $event = $event_mapper->findOne($id_obj);
+            if(!isset($event) || !$event->id()) {
+                $this->response()->statusCode(PHPFrame_Response::STATUS_NOT_FOUND);
+                return;
+            }
+            $event_id = $event->id();
+
+            $eventcards_mapper = new PHPFrame_Mapper('eventcards', $this->db());
+            $id_obj = $eventcards_mapper->getIdObject();
+            $id_obj->where('event_id','=',':event_id')
+            ->where('card_id','=',':card_id')
+            ->params(':event_id',$event_id)
+            ->params(':card_id',$card_id);
+            $eventcard = $this->_getMapper()->findOne($id_obj);
+            if(!isset($eventcard) || !$eventcard->id()) {
+                $this->response()->statusCode(PHPFrame_Response::STATUS_NOT_FOUND);
+                return;
+            }
+            $eventcards_id = $eventcard->id();
+        }
+
+        $vote = null;
         if(!is_null($eventcards_id))
         {
         	$vote = new Vote();
@@ -98,9 +133,19 @@ class VoteApiController extends PHPFrame_RESTfulController
         	if(isset($ip_address)) $vote->ip_address($ip_address);
         	if(isset($owner)) $vote->owner($owner);
         	$this->_getMapper()->insert($vote);
+
+            if(isset($event_safe_name) && isset($card_id) && isset($event_id))
+            {
+                return $this->handleReturnValue($this->get($event_id));
+            }
+
+            return $this->handleReturnValue($vote);
         }
-        
-        return $this->handleReturnValue($vote);
+
+        if(!isset($vote) || !$vote->id()) {
+            $this->response()->statusCode(PHPFrame_Response::STATUS_BAD_REQUEST);
+            return;
+        }
     }
     
     public function delete($id)

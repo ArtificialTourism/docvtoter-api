@@ -48,7 +48,7 @@ class EventcardsApiController extends PHPFrame_RESTfulController
      * @return array             an array of card objects.
      * @since  1.0
      */
-    public function get($event_id)
+    public function get($event_id, $card_id=null)
     {
         if (empty($event_id)) {
             $event_id = null;
@@ -110,9 +110,8 @@ class EventcardsApiController extends PHPFrame_RESTfulController
         $eventcard = new Eventcards();
         $eventcard->event_id($event_id);
         $eventcard->card_id($card_id);  
-        $this->_getMapper()->insert($eventcard);      
+        $this->_getMapper()->insert($eventcard);
 
-        
         return $this->handleReturnValue($eventcard);
     }
     
