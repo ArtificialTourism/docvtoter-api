@@ -43,16 +43,21 @@ class VoteApiController extends PHPFrame_RESTfulController
     /**
      * Get vote count.
      *
-     * @param int $eventcards_id     id of eventcard for which vote count is to be returned.
+     * @param int $eventcards_id    [optional] id of eventcard for which vote count is to be returned.
+     * @param int $event_id         [optional] id of event for which card vote totals is to be returned.
      *
-     * @return string   vote count
+     * @return mixed                vote count or assoc array of cards and vote info
      * @since  1.0
      */
-    public function get($eventcards_id)
+    public function get($eventcards_id=null, $event_id=null)
     {
         if (empty($eventcards_id)) {
             $eventcards_id = null;
         }
+        if (empty($event_id)) {
+            $event_id = null;
+        }
+
         if(!is_null($eventcards_id)) {
             $id_obj = $this->_getMapper()->getIdObject();
             $table = $id_obj->getTableName();
@@ -67,11 +72,17 @@ class VoteApiController extends PHPFrame_RESTfulController
 	            $count = $count['COUNT(eventcards_id)'];
 	        } else {
 	        	$count = '0';
-	        } 
+	        }
+
+            return $this->handleReturnValue($count);
+        } elseif(!is_null($event_id)) {
+            $card_votes = $this->_getMapper()->findByEventId($event_id);
+            return $this->handleReturnValue($card_votes);
+        } else {
+            $this->response()->statusCode(PHPFrame_Response::STATUS_BAD_REQUEST);
+            return;
         }
 
-        //return count
-        return $this->handleReturnValue($count);
     }
     
     public function post($eventcards_id, $ip_address=null, $owner=null)
@@ -123,7 +134,7 @@ class VoteApiController extends PHPFrame_RESTfulController
     private function _getMapper()
     {
         if (is_null($this->_mapper)) {
-            $this->_mapper = new PHPFrame_Mapper('vote', $this->db());
+            $this->_mapper = new VoteMapper($this->db());
         }
 
         return $this->_mapper;
