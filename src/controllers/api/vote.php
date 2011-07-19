@@ -102,8 +102,8 @@ class VoteApiController extends PHPFrame_RESTfulController
         if (!is_null($event_safe_name) && !is_null($card_id)) {
             $event_mapper = new PHPFrame_Mapper('event', $this->db());
             $id_obj = $event_mapper->getIdObject();
-	        $id_obj->where('safe_name','=',':event_save_name')
-	           ->params('event_safe_name', $event_safe_name);
+	        $id_obj->where('safe_name','=',':event_safe_name')
+	           ->params(':event_safe_name', $event_safe_name);
 	        $event = $event_mapper->findOne($id_obj);
             if(!isset($event) || !$event->id()) {
                 $this->response()->statusCode(PHPFrame_Response::STATUS_NOT_FOUND);
@@ -117,8 +117,9 @@ class VoteApiController extends PHPFrame_RESTfulController
             ->where('card_id','=',':card_id')
             ->params(':event_id',$event_id)
             ->params(':card_id',$card_id);
-            $eventcard = $this->_getMapper()->findOne($id_obj);
+            $eventcard = $eventcards_mapper->findOne($id_obj);
             if(!isset($eventcard) || !$eventcard->id()) {
+$this->logger()->write('setting status not found');
                 $this->response()->statusCode(PHPFrame_Response::STATUS_NOT_FOUND);
                 return;
             }
@@ -134,12 +135,12 @@ class VoteApiController extends PHPFrame_RESTfulController
         	if(isset($owner)) $vote->owner($owner);
         	$this->_getMapper()->insert($vote);
 
-            if(isset($event_safe_name) && isset($card_id) && isset($event_id))
+        	if(isset($event_safe_name) && isset($card_id) && isset($event_id))
             {
-                return $this->handleReturnValue($this->get($event_id));
+                $this->get(null, $event_id);
+            } else {
+                return $this->handleReturnValue($vote);
             }
-
-            return $this->handleReturnValue($vote);
         }
 
         if(!isset($vote) || !$vote->id()) {
