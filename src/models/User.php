@@ -23,6 +23,12 @@ class User extends PHPFrame_User
             new PHPFrame_StringFilter(array('max_length'=>255))
         );
         $this->addField(
+            "password",
+            null,
+            true,
+            new PHPFrame_StringFilter(array('max_length'=>128))
+        );
+        $this->addField(
             "email",
             null,
             true,

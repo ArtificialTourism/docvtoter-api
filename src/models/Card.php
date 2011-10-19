@@ -76,7 +76,17 @@ class Card extends PHPFrame_PolymorphicPersistentObject
             true,
             new PHPFrame_StringFilter(array("max_length"=>255))
         );
-        
+        $this->addField(
+            "status",
+            "active",
+            false,
+            new PHPFrame_EnumFilter(array(
+                 "enums" => array(
+                     "active",
+                     "deleted"
+                  )
+            ))            
+        );
         parent::__construct($options);
     }
 }

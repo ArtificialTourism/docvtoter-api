@@ -58,6 +58,18 @@ class Event extends PHPFrame_PersistentObject
             false,
             new PHPFrame_BoolFilter()
         );
+        $this->addField(
+            "private",
+            0,
+            false,
+            new PHPFrame_BoolFilter()
+        );
+        $this->addField(
+            "password",
+            null,
+            true,
+            new PHPFrame_StringFilter(array("max_length"=>128))
+        );
         
         parent::__construct($options);
     }

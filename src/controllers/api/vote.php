@@ -119,7 +119,6 @@ class VoteApiController extends PHPFrame_RESTfulController
             ->params(':card_id',$card_id);
             $eventcard = $eventcards_mapper->findOne($id_obj);
             if(!isset($eventcard) || !$eventcard->id()) {
-$this->logger()->write('setting status not found');
                 $this->response()->statusCode(PHPFrame_Response::STATUS_NOT_FOUND);
                 return;
             }
