@@ -48,14 +48,26 @@ class TagApiController extends PHPFrame_RESTfulController
      * @return array|object tag object or an array containing tag objects.
      * @since  1.0
      */
-    public function get($id=null)
+    public function get($id=null, $name=null, $type=null, $card=null)
     {
         if (empty($id)) {
             $id = null;
         }
         
-        if(!is_null($id)) {
+        if (empty($name)) {
+            $name = null;
+        }
+        
+        if (empty($type)) {
+            $type = null;
+        }
+        
+        if(isset($id)) {
             $ret = $this->_getMapper()->findOne(intval($id));
+        } elseif(isset($name) && isset($type)) {
+        	$ret = $this->_getMapper()->findByNameType($name, $type);
+        } elseif(isset($card)) {
+            $ret = $this->_getMapper()->findByCard($card);
         } else {
             $ret = $this->_getMapper()->find();
         }
@@ -70,30 +82,32 @@ class TagApiController extends PHPFrame_RESTfulController
         return $this->handleReturnValue($ret);
     }
     
-    public function post($name) 
+    public function post($name, $type='tag') 
     {
         if (empty($name)) {
             $name = null;
         }
         
+        if (empty($type)) {
+            $type = null;
+        }
+        
         //check duplicate name
-        $id_obj = $this->_getMapper()->getIdObject();
-        $id_obj->where('name','=',':name')
-        ->params(':name',$name);
-        $tag = $this->_getMapper()->findOne($id_obj);
+        $tag = $this->_getMapper()->findByNameType($name, $type);
         
         //if not duplicate, create new tag
         if(!isset($tag) || $tag->id() == 0)
         {
         	$tag = new Tags();
         	$tag->name($name);
+        	$tag->type($type);
         	$this->_getMapper()->insert($tag);
         }
         
         return $this->handleReturnValue($tag);
     }
     
-    public function put($id, $name=null)
+    public function put($id, $name=null, $type=null)
     {
         if (empty($id)) {
             $id = null;
@@ -101,6 +115,10 @@ class TagApiController extends PHPFrame_RESTfulController
     	
     	if (empty($name)) {
             $name = null;
+        }
+        
+        if (empty($type)) {
+            $type = null;
         }
         
         //find tag
@@ -116,6 +134,7 @@ class TagApiController extends PHPFrame_RESTfulController
             
             //update tag
             if(isset($name)) $tag->name($name);
+            if(isset($type)) $tag->name($type);
             $this->_getMapper()->insert($tag);
         }
 

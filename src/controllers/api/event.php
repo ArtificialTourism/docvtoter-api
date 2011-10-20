@@ -48,22 +48,43 @@ class EventApiController extends PHPFrame_RESTfulController
      * @return object      an event object.
      * @since  1.0
      */
-    public function get($id)
+    public function get($id = null, $user = null)
     {
         if (empty($id)) {
             $id = null;
         }
         
-        $event = $this->_getMapper()->findOne(intval($id));
-
-        if(!isset($event) || $event->id() == 0)
-        {
-        	$this->response()->statusCode(PHPFrame_Response::STATUS_NOT_FOUND);
+        if (empty($user)) {
+            $user = null;
+        }
+        
+        if((!isset($id) || empty($id)) && (!isset($user) || empty($user))) {
+        	$this->response()->statusCode(PHPFrame_Response::STATUS_BAD_REQUEST);
             return;
         }
         
+        if(isset($id)) {
+            $ret = $this->_getMapper()->findOne(intval($id));	
+
+            if(!isset($ret) || $ret->id() == 0)
+            {
+                $this->response()->statusCode(PHPFrame_Response::STATUS_NOT_FOUND);
+                return;
+            }
+        }
+        
+        if(isset($user)) {
+        	$ret = $this->_getMapper()->findByUser();
+        	
+            if(!isset($ret))
+            {
+                $this->response()->statusCode(PHPFrame_Response::STATUS_NOT_FOUND);
+                return;
+            }
+        }
+
         //return found event
-        return $this->handleReturnValue($event);
+        return $this->handleReturnValue($ret);
     }
     
     public function post($name, $start, $description=null, $summary=null, $end=null,
@@ -170,7 +191,7 @@ class EventApiController extends PHPFrame_RESTfulController
     private function _getMapper()
     {
         if (is_null($this->_mapper)) {
-            $this->_mapper = new PHPFrame_Mapper('event', $this->db());
+            $this->_mapper = new EventMapper($this->db());
         }
 
         return $this->_mapper;

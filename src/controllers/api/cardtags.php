@@ -48,17 +48,25 @@ class CardtagsApiController extends PHPFrame_RESTfulController
      * @return array        an array containing tags objects.
      * @since  1.0
      */
-    public function get($card_id)
+    public function get($card_id, $tag_id=null)
     {
         if (empty($card_id)) {
             $card_id = null;
         }
+        
+        if (empty($tag_id)) {
+            $tag_id = null;
+        }
 
         //find cardtags for card card_id
-        if (!is_null($card_id)) {
+        if (isset($card_id)) {
             $id_obj = $this->_getMapper()->getIdObject();
             $id_obj->where('card_id','=',':card_id')
             ->params(':card_id',$card_id);
+            if(isset($tag)) {
+                $id_obj->where('tag_id','=',':tag_id')
+                ->params(':tag_id',$tag_id);
+            }
             $ret = $this->_getMapper()->find($id_obj);
         }
         
@@ -148,7 +156,7 @@ class CardtagsApiController extends PHPFrame_RESTfulController
     private function _getMapper()
     {
         if (is_null($this->_mapper)) {
-            $this->_mapper = new PHPFrame_Mapper('tagscard', $this->db());
+            $this->_mapper = new TagscardMapper($this->db());
         }
 
         return $this->_mapper;

@@ -43,34 +43,93 @@ class UserApiController extends PHPFrame_RESTfulController
     /**
      * Get user.
      *
-     * @param int $id      id of user to be returned.
+     * @param int $id      [optional] id of user to be returned.
+     * @param int $event   [optional] event_id for event of which all users is to be returned.
+     * @param string $username   [optional] username for matching password to id a user.
+     * @param string $password   [optional] password for matching username to id a user.
      *
      * @return object      a user object.
      * @since  1.0
      */
-    public function get($id)
+    public function get($id=null, $event=null, $username=null, $password=null)
     {
         if (empty($id)) {
             $id = null;
         }
         
-        $user = $this->_getMapper()->findOne(intval($id));
-
-        if(!isset($user) || $user->id() == 0)
-        {
-        	$this->response()->statusCode(PHPFrame_Response::STATUS_NOT_FOUND);
+        if (empty($event)) {
+            $event = null;
+        }
+        
+        if (empty($username)) {
+            $username = null;
+        }
+        
+        if (empty($password)) {
+            $password = null;
+        }
+        
+        if((!isset($id) || empty($id))
+            && (!isset($event) || empty($event))
+            && (!isset($username) || !isset($password))
+        ) {
+            $this->response()->statusCode(PHPFrame_Response::STATUS_BAD_REQUEST);
             return;
         }
         
+        if(isset($id)) {
+            $user = $this->_getMapper()->findOne(intval($id));
+	        if(!isset($user) || $user->id() == 0)
+	        {
+	            $this->response()->statusCode(PHPFrame_Response::STATUS_NOT_FOUND);
+	            return;
+	        }
+        }
+        
+        if(isset($event)) {
+        	//find all users mapped to event in eventuser table
+        	$user = $this->_getMapper()->findByEvent($event);
+            if(!isset($user))
+            {
+                $this->response()->statusCode(PHPFrame_Response::STATUS_NOT_FOUND);
+                return;
+            }
+        }
+        
+        if(isset($username) && isset($password)) {
+        	$user = $this->_getMapper()->findByUsername($username);
+            if(!isset($user) || $user->id() == 0)
+            {
+                $this->response()->statusCode(PHPFrame_Response::STATUS_NOT_FOUND);
+                return;
+            }
+            
+            //check password match
+            if(!$this->_passwords_match($password, $user->password()))
+            {
+                $this->response()->statusCode(PHPFrame_Response::STATUS_NOT_FOUND);
+                return;
+            }
+        }
+
         //return found user
         return $this->handleReturnValue($user);
     }
     
-    public function post($username, $role_id, $first_name=null, $last_name=null,
+    public function post($username, $role_id, $password=null, $first_name=null, $last_name=null,
         $email=null, $organisation_id=null) 
     {
         if (empty($username)) {
             $name = null;
+        }
+        
+        if (empty($password)) {
+            $password = null;
+        } else {
+        	//hash password
+            $salt = PHPFrame_Utils_Crypt::genRandomPassword(32);
+            $crypt = PHPFrame_Utils_Crypt::getCryptedPassword($this->_row->get('password'), $salt);
+            $password = $crypt.':'.$salt;
         }
         
         if(!$this->_is_unique($username)) {
@@ -85,6 +144,7 @@ class UserApiController extends PHPFrame_RESTfulController
         	$user = new User();
         	$user->username($username);
         	$user->role_id($role_id);
+        	if(isset($password)) $user->password($password);
         	if(isset($first_name)) $user->first_name($first_name);
         	if(isset($last_name)) $user->last_name($last_name);
         	if(isset($email)) $user->email($email);
@@ -104,7 +164,7 @@ class UserApiController extends PHPFrame_RESTfulController
         return $this->handleReturnValue($user);
     }
     
-    public function put($id, $username=null, $first_name=null, $last_name=null,
+    public function put($id, $username=null, $password=null, $first_name=null, $last_name=null,
         $email=null, $organisation_id=null, $role_id=null)
     {
         if (empty($id)) {
@@ -113,6 +173,10 @@ class UserApiController extends PHPFrame_RESTfulController
         
         if(!$this->_is_unique($username)) {
         	$username = null;
+        }
+        
+        if(empty($password)) {
+        	$password = null;
         }
     	
         //find user
@@ -126,7 +190,17 @@ class UserApiController extends PHPFrame_RESTfulController
                 return;
             }
             
+            //hash password if different from stored password
+            if(isset($password)
+                && $password != $user->password()
+            ) {
+	            $salt = PHPFrame_Utils_Crypt::genRandomPassword(32);
+	            $crypt = PHPFrame_Utils_Crypt::getCryptedPassword($this->_row->get('password'), $salt);
+	            $password = $crypt.':'.$salt;
+            }
+            
             //update user
+            if(isset($password)) $user->password($password);
             if(isset($username)) $user->username($username);
             if(isset($role_id)) $user->role_id($role_id);
             if(isset($first_name)) $user->first_name($first_name);
@@ -175,6 +249,22 @@ class UserApiController extends PHPFrame_RESTfulController
     	$existing = $this->_getMapper()->findOne($id_obj);
     	return !isset($existing) || !$existing->id();
     }
+    
+    private function _passwords_match($password, $stored_password) {
+    	if(empty($stored_password)) {
+    		return false;
+    	}
+    	$parts = split(':',$stored_password);
+        if(!isset($parts[1])) {
+            return false;
+        }
+    	$salt = $parts[1];
+    	$crypt = PHPFrame_Utils_Crypt::getCryptedPassword($password, $salt);
+    	
+    	$match = $crypt.':'.$salt == $stored_password;
+    	
+    	return $match;
+    }
 
     /**
      * Get instance of UserMapper.
@@ -185,7 +275,7 @@ class UserApiController extends PHPFrame_RESTfulController
     private function _getMapper()
     {
         if (is_null($this->_mapper)) {
-            $this->_mapper = new PHPFrame_Mapper('user', $this->db());
+            $this->_mapper = new UserMapper($this->db());
         }
 
         return $this->_mapper;

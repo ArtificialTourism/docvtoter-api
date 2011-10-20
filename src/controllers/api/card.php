@@ -51,7 +51,7 @@ class CardApiController extends PHPFrame_RESTfulController
      *                      card objects.
      * @since  1.0
      */
-    public function get($id=null, $limit=10, $page=1)
+    public function get($id=null, $limit=10, $page=1, $tag=null, $user=null)
     {
         if (empty($id)) {
             $id = null;
@@ -64,9 +64,19 @@ class CardApiController extends PHPFrame_RESTfulController
         if (empty($page)) {
             $page = 1;
         }
+        
+        if (empty($tag)) {
+            $tag = null;
+        }
+        
+        if (empty($user)) {
+            $user = null;
+        }
 
-        if (!is_null($id)) {
+        if (isset($id)) {
             $ret = $this->_fetchCard($id);
+        } elseif(isset($tag)) {
+        	$ret = $this->_getMapper()->findByTag($tag, $user);
         } else {
             $id_obj = $this->_getMapper()->getIdObject();
             $id_obj->limit($limit, ($page-1)*$limit);
@@ -180,7 +190,8 @@ class CardApiController extends PHPFrame_RESTfulController
             return;
         }
         
-        $this->_getMapper()->delete($card);
+        $card->status('deleted');
+        $this->_getMapper()->insert($card);
     }
     
     /**
@@ -205,7 +216,7 @@ class CardApiController extends PHPFrame_RESTfulController
     private function _getMapper()
     {
         if (is_null($this->_mapper)) {
-            $this->_mapper = new PHPFrame_Mapper('card', $this->db());
+            $this->_mapper = new CardMapper($this->db());
         }
 
         return $this->_mapper;
