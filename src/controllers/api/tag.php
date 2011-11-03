@@ -48,7 +48,7 @@ class TagApiController extends PHPFrame_RESTfulController
      * @return array|object tag object or an array containing tag objects.
      * @since  1.0
      */
-    public function get($id=null, $name=null, $type=null, $card=null)
+    public function get($id=null, $name=null, $type=null, $card_id=null)
     {
         if (empty($id)) {
             $id = null;
@@ -66,8 +66,8 @@ class TagApiController extends PHPFrame_RESTfulController
             $ret = $this->_getMapper()->findOne(intval($id));
         } elseif(isset($name) && isset($type)) {
         	$ret = $this->_getMapper()->findByNameType($name, $type);
-        } elseif(isset($card)) {
-            $ret = $this->_getMapper()->findByCard($card);
+        } elseif(isset($card_id)) {
+            $ret = $this->_getMapper()->findByCard($card_id);
         } else {
             $ret = $this->_getMapper()->find();
         }
@@ -134,7 +134,7 @@ class TagApiController extends PHPFrame_RESTfulController
             
             //update tag
             if(isset($name)) $tag->name($name);
-            if(isset($type)) $tag->name($type);
+            if(isset($type)) $tag->type($type);
             $this->_getMapper()->insert($tag);
         }
 
@@ -156,7 +156,7 @@ class TagApiController extends PHPFrame_RESTfulController
     private function _getMapper()
     {
         if (is_null($this->_mapper)) {
-            $this->_mapper = new PHPFrame_Mapper('tags', $this->db());
+            $this->_mapper = new TagsMapper($this->db());
         }
 
         return $this->_mapper;

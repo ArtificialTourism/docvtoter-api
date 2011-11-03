@@ -67,7 +67,7 @@ class DeckApiController extends PHPFrame_RESTfulController
         }
     }
     
-    public function post($name, $description=null, $id=null)
+    public function post($name, $description=null, $id=null, $user=null)
     {
         if (empty($id)) {
             $id = null;
@@ -79,8 +79,13 @@ class DeckApiController extends PHPFrame_RESTfulController
         	$deck = $this->_fetchDeck($id);
         }
         
+        if(empty($user)) {
+            $user = null;
+        }
+        
         $deck->name($name);
         if(!is_null($description)) $deck->description($description);
+        if(isset($user)) $deck->owner($user);
         
         $this->_getDeckMapper()->insert($deck);
         

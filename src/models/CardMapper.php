@@ -8,7 +8,7 @@ class CardMapper extends PHPFrame_Mapper
     
     public function find(PHPFrame_IdObject $id_obj=null)
     {
-    	$id_obj->where("status","=","active");
+    	$id_obj->where("status","=","'active'");
         $collection = parent:: find($id_obj);
         return $collection;
     }
@@ -20,7 +20,7 @@ class CardMapper extends PHPFrame_Mapper
         $id_obj->select($table.".*")
         ->join('JOIN cardstodeck d ON d.card_id = '.$table.'.id')
         ->where("d.deck_id", "=", ":deck_id")
-        ->where("status", "=", "active")
+        ->where("status", "=", "'active'")
         ->params(":deck_id",$deck_id);
         return $this->find($id_obj);
     }
@@ -32,7 +32,7 @@ class CardMapper extends PHPFrame_Mapper
         $id_obj->select($table.".*")
         ->join('JOIN eventcards e ON e.card_id = '.$table.'.id')
         ->where("e.event_id", "=", ":event_id")
-        ->where("status", "=", "active")
+        ->where("status", "=", "'active'")
         ->params(":event_id",$event_id);
         return $this->find($id_obj);
     }
@@ -52,7 +52,7 @@ class CardMapper extends PHPFrame_Mapper
         $id_obj->select($table.".*")
         ->join('JOIN tagscard t ON t.card_id = '.$table.'.id')
         ->where("t.tag_id", "=", ":tag_id")
-        ->where("status", "=", "active")
+        ->where("$table.status", "=", "'active'")
         ->params(":tag_id",$tag);
         if(isset($user) && !empty($user)) {
         	$id_obj->where("t.owner","=",":user")

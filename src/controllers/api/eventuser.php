@@ -25,7 +25,7 @@
  */
 class EventuserApiController extends PHPFrame_RESTfulController
 {
-    private $_mapper;
+    private $_mapper, $_userMapper;
 
     /**
      * Constructor.
@@ -114,7 +114,7 @@ class EventuserApiController extends PHPFrame_RESTfulController
             return $this->handleReturnValue($eventuser);
         }
         
-        $eventuser = new Eventuser();
+        $eventuser = new Eventusers();
         $eventuser->event_id($event_id);
         $eventuser->user_id($user_id);  
         $this->_getMapper()->insert($eventuser);
@@ -167,9 +167,24 @@ class EventuserApiController extends PHPFrame_RESTfulController
     private function _getMapper()
     {
         if (is_null($this->_mapper)) {
-            $this->_mapper = new PHPFrame_Mapper('eventuser',$this->db());
+            $this->_mapper = new PHPFrame_Mapper('eventusers',$this->db());
         }
 
         return $this->_mapper;
+    }
+    
+    /**
+     * Get instance of UserMapper.
+     *
+     * @return UserMapper
+     * @since  1.0
+     */
+    private function _getUserMapper()
+    {
+        if (is_null($this->_userMapper)) {
+            $this->_userMapper = new UserMapper($this->db());
+        }
+
+        return $this->_userMapper;
     }
 }

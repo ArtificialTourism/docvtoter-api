@@ -80,7 +80,7 @@ class CardtagsApiController extends PHPFrame_RESTfulController
         return $this->handleReturnValue($ret);
     }
     
-    public function post($card_id, $tag_id) 
+    public function post($card_id, $tag_id, $owner=null) 
     {
         if (empty($card_id)) {
             $card_id = null;
@@ -88,6 +88,10 @@ class CardtagsApiController extends PHPFrame_RESTfulController
         
         if (empty($tag_id)) {
             $tag_id = null;
+        }
+        
+        if (empty($owner)) {
+            $owner = null;
         }
         
         //verify existence of card and tag
@@ -106,13 +110,28 @@ class CardtagsApiController extends PHPFrame_RESTfulController
             return;
         }
         
+        //fetch any duplicates
+        $id_obj = $this->_getMapper()->getIdObject();
+        $id_obj->where('card_id','=',':card_id')
+        ->where('tag_id','=',':tag_id')
+        ->params(':card_id',$card_id)
+        ->params(':tag_id',$tag_id);
+        if(isset($user)) {
+            $id_obj->where('owner','=',':owner')
+            ->params(':owner',$owner);  
+        }
+        $cardtag = $this->_getMapper()->findOne($id_obj);
+        
         //create cardtag
-        $cardtag = new Tagscard();
-        $cardtag->card_id($card_id);
-        $cardtag->tag_id($tag_id);
-        $this->_getMapper()->insert($cardtag);
+        if(!$cardtag || $cardtag->id() == 0) {
+	        $cardtag = new Tagscard();
+	        $cardtag->card_id($card_id);
+	        $cardtag->tag_id($tag_id);
+	        if(isset($owner)) $cardtag->owner($owner);
+	        $this->_getMapper()->insert($cardtag);
+        }
                 
-        //return newly created cardtag
+        //return existing/newly created cardtag
         return $this->handleReturnValue($cardtag);
     }
     
@@ -156,7 +175,7 @@ class CardtagsApiController extends PHPFrame_RESTfulController
     private function _getMapper()
     {
         if (is_null($this->_mapper)) {
-            $this->_mapper = new TagscardMapper($this->db());
+            $this->_mapper = new PHPFrame_Mapper('tagscard',$this->db());
         }
 
         return $this->_mapper;

@@ -70,7 +70,7 @@ class OrganisationApiController extends PHPFrame_RESTfulController
         return $this->handleReturnValue($ret);
     }
     
-    public function post($name, $location_id=null, $parent_id=null) 
+    public function post($name, $location_id=null, $parent_id=null, $owner=null) 
     {
         if (empty($name)) {
             $name = null;
@@ -84,11 +84,16 @@ class OrganisationApiController extends PHPFrame_RESTfulController
         	$parent_id = null;
         }
         
+        if (empty($owner)) {
+            $owner = null;
+        }
+        
         if(isset($name)) {
         	$organisation = new Organisation();
         	$organisation->name($name);
         	if(isset($location_id)) $organisation->location_id($location_id);
         	if(isset($parent_id)) $organisation->parent_id($parent_id);
+        	if(isset($owner)) $organisation->parent_id($owner);
         	
         	$this->_getMapper()->insert($organisation);
         }
@@ -101,10 +106,14 @@ class OrganisationApiController extends PHPFrame_RESTfulController
         return $this->handleReturnValue($organisation);
     }
     
-    public function put($id, $name=null, $location_id=null, $parent_id=null, $sector=null)
+    public function put($id, $name=null, $location_id=null, $parent_id=null, $sector=null, $owner=null)
     {
         if (empty($id)) {
             $id = null;
+        }
+        
+        if(empty($owner)) {
+        	$owner = null;
         }
     	
         //find organisation
@@ -123,6 +132,7 @@ class OrganisationApiController extends PHPFrame_RESTfulController
             if(isset($location_id)) $organisation->location_id($location_id);
             if(isset($parent_id)) $organisation->parent_id($parent_id);
             if(isset($sector)) $organisation->sector($sector);
+            if(isset($owner)) $organisation->owner($owner);
             
             $this->_getMapper()->insert($organisation);
         }

@@ -51,7 +51,7 @@ class CardApiController extends PHPFrame_RESTfulController
      *                      card objects.
      * @since  1.0
      */
-    public function get($id=null, $limit=10, $page=1, $tag=null, $user=null)
+    public function get($id=null, $limit=10, $page=1, $tag_id=null, $owner=null)
     {
         if (empty($id)) {
             $id = null;
@@ -65,18 +65,18 @@ class CardApiController extends PHPFrame_RESTfulController
             $page = 1;
         }
         
-        if (empty($tag)) {
-            $tag = null;
+        if (empty($tag_id)) {
+            $tag_id = null;
         }
         
-        if (empty($user)) {
-            $user = null;
+        if (empty($owner)) {
+            $owner = null;
         }
 
         if (isset($id)) {
             $ret = $this->_fetchCard($id);
-        } elseif(isset($tag)) {
-        	$ret = $this->_getMapper()->findByTag($tag, $user);
+        } elseif(isset($tag_id)) {
+        	$ret = $this->_getMapper()->findByTag($tag_id, $owner);
         } else {
             $id_obj = $this->_getMapper()->getIdObject();
             $id_obj->limit($limit, ($page-1)*$limit);
@@ -86,9 +86,9 @@ class CardApiController extends PHPFrame_RESTfulController
         return $this->handleReturnValue($ret);
     }
 
-    public function post($name, $category_id, $type, $safe_name=null, $topic_id=null,
+    public function post($name, $category_id, $type, $topic_id, $safe_name=null,
         $question=null, $factoid=null, $description=null, $image=null, $card_front=null,
-        $card_back=null, $origin_event_id=null, $uri=null, $params=null
+        $card_back=null, $origin_event_id=null, $uri=null, $params=null, $owner=null
     )
     {
         $card = new Card();
@@ -101,11 +101,15 @@ class CardApiController extends PHPFrame_RESTfulController
             $category_id = null;
         }
         
+        if (empty($topic_id)) {
+            $topic_id = null;
+        }
+        
         if (empty($type)) {
             $type = null;
         }
         
-        if(isset($name) && isset($safe_name) && isset($category_id) && isset($type)) {
+        if(isset($name) && isset($topic_id) && isset($category_id) && isset($type)) {
             $card->name($name);
             $card->category_id($category_id);
             $card->type($type);
@@ -120,6 +124,7 @@ class CardApiController extends PHPFrame_RESTfulController
             if(!is_null($origin_event_id)) $card->origin_event_id($origin_event_id);
             if(!is_null($uri)) $card->uri($uri);
             if(!is_null($params)) $card->params($params);
+            if(!is_null($owner)) $card->owner($owner);
         } else {
         	$this->response()->statusCode(PHPFrame_Response::STATUS_BAD_REQUEST);
             return;
@@ -133,7 +138,7 @@ class CardApiController extends PHPFrame_RESTfulController
     public function put($id, $name=null, $safe_name=null, $category_id=null,
         $type=null, $topic_id=null, $question=null, $factoid=null, $description=null,
         $image=null, $card_front=null, $card_back=null, $origin_event_id=null,
-        $uri=null, $params=null
+        $uri=null, $params=null, $owner=null
     )
     {
         if (empty($id)) {
@@ -161,6 +166,7 @@ class CardApiController extends PHPFrame_RESTfulController
         if(!is_null($card_back)) $card->card_back($card_back);
         if(!is_null($origin_event_id)) $card->origin_event_id($origin_event_id);
         if(!is_null($uri)) $card->uri($uri);
+        if(!is_null($owner)) $card->owner($owner);
         if(!is_null($params)) $card->params($params);
         
         $this->_getMapper()->insert($card);

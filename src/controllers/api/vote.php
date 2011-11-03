@@ -98,6 +98,10 @@ class VoteApiController extends PHPFrame_RESTfulController
         if (empty($card_id)) {
             $card_id = null;
         }
+        
+        if (empty($owner)) {
+            $owner = null;
+        }
 
         if (!is_null($event_safe_name) && !is_null($card_id)) {
             $event_mapper = new PHPFrame_Mapper('event', $this->db());

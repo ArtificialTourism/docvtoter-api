@@ -22,3 +22,12 @@ CREATE TABLE IF NOT EXISTS `eventusers` (
   `perms` int(11) NOT NULL DEFAULT '664',
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+
+INSERT INTO `api_methods` (`id`, `method`, `oauth`, `cookie`) VALUES (NULL, 'eventuser/post', '2', '1'), (NULL, 'eventuser/delete', '2', '1');
+
+RENAME TABLE role TO groups;
+
+ALTER TABLE `user` CHANGE COLUMN role_id group_id int(11) DEFAULT 0;
+ALTER TABLE  `user` ADD  `params` VARCHAR( 255 ) NULL DEFAULT NULL AFTER `group_id`;
+
+UPDATE  `api_methods` SET  `method` = 'group/get' WHERE  `method` = 'role/get';

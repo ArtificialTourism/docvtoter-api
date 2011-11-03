@@ -74,7 +74,7 @@ class EventApiController extends PHPFrame_RESTfulController
         }
         
         if(isset($user)) {
-        	$ret = $this->_getMapper()->findByUser();
+        	$ret = $this->_getMapper()->findByUser($user);
         	
             if(!isset($ret))
             {
@@ -88,7 +88,9 @@ class EventApiController extends PHPFrame_RESTfulController
     }
     
     public function post($name, $start, $description=null, $summary=null, $end=null,
-        $location_id=null, $allow_anon=null, $auto_publish=null, $auto_close=null) 
+        $location_id=null, $allow_anon=null, $auto_publish=null, $auto_close=null,
+        $owner=null, $private=null, $password=null
+    ) 
     {
         if (empty($name)) {
             $name = null;
@@ -96,6 +98,10 @@ class EventApiController extends PHPFrame_RESTfulController
         
         if (empty($start)) {
             $start = null;
+        }
+        
+        if (empty($owner)) {
+            $owner = null;
         }
         
         if(isset($name) && isset($start)) {
@@ -109,6 +115,9 @@ class EventApiController extends PHPFrame_RESTfulController
         	if(isset($allow_anon)) $event->allow_anon($allow_anon);
         	if(isset($auto_publish)) $event->auto_publish($auto_publish);
         	if(isset($auto_close)) $event->auto_close($auto_close);
+        	if(isset($private)) $event->private($private);
+        	if(isset($password)) $event->password($password);
+        	if(isset($owner)) $event->owner($owner);
         	
         	$this->_getMapper()->insert($event);
         }
@@ -122,7 +131,8 @@ class EventApiController extends PHPFrame_RESTfulController
     }
     
     public function put($id, $name=null, $description=null, $summary=null, $end=null,
-        $location_id=null, $allow_anon=null, $auto_publish=null, $auto_close=null)
+        $location_id=null, $allow_anon=null, $auto_publish=null, $auto_close=null,
+        $private=null, $password=null)
     {
         if (empty($id)) {
             $id = null;
@@ -148,6 +158,8 @@ class EventApiController extends PHPFrame_RESTfulController
             if(isset($allow_anon)) $event->allow_anon($allow_anon);
             if(isset($auto_publish)) $event->auto_publish($auto_publish);
             if(isset($auto_close)) $event->auto_close($auto_close);
+            if(isset($password)) $event->password($password);
+            if(isset($private)) $event->private($private);
             $this->_getMapper()->insert($event);
         }
 

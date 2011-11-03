@@ -66,7 +66,7 @@ class CommentApiController extends PHPFrame_RESTfulController
         return $this->handleReturnValue($comment);
     }
     
-    public function post($card_id, $message) 
+    public function post($card_id, $message, $owner=null) 
     {
         if (empty($card_id)) {
             $card_id = null;
@@ -76,11 +76,15 @@ class CommentApiController extends PHPFrame_RESTfulController
             $message = null;
         }
         
+        if (empty($owner)) {
+            $owner = null;
+        }
+        
         if(isset($card_id) && isset($message)) {
         	$comment = new Comment();
         	$comment->card_id($card_id);
         	$comment->message($message);
-        	
+        	if(isset($owner)) $comment->owner($owner);
         	$this->_getMapper()->insert($comment);
         }
         

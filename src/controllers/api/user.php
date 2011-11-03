@@ -101,13 +101,15 @@ class UserApiController extends PHPFrame_RESTfulController
             if(!isset($user) || $user->id() == 0)
             {
                 $this->response()->statusCode(PHPFrame_Response::STATUS_NOT_FOUND);
+                $this->response()->body("Bad Username");
                 return;
             }
-            
+
             //check password match
             if(!$this->_passwords_match($password, $user->password()))
             {
                 $this->response()->statusCode(PHPFrame_Response::STATUS_NOT_FOUND);
+                $this->response()->body("Bad Username and Password combination");
                 return;
             }
         }
@@ -116,34 +118,35 @@ class UserApiController extends PHPFrame_RESTfulController
         return $this->handleReturnValue($user);
     }
     
-    public function post($username, $role_id, $password=null, $first_name=null, $last_name=null,
+    public function post($username, $group_id, $password=null, $first_name=null, $last_name=null,
         $email=null, $organisation_id=null) 
     {
         if (empty($username)) {
-            $name = null;
+            $username = null;
         }
         
         if (empty($password)) {
             $password = null;
         } else {
         	//hash password
-            $salt = PHPFrame_Utils_Crypt::genRandomPassword(32);
-            $crypt = PHPFrame_Utils_Crypt::getCryptedPassword($this->_row->get('password'), $salt);
+            $salt = $this->app()->crypt()->genRandomPassword(32);
+            $crypt = $this->app()->crypt()->encryptPassword($password, $salt);
             $password = $crypt.':'.$salt;
         }
         
         if(!$this->_is_unique($username)) {
             $username = null;
+            $this->response()->body("Username not unique");
         }
         
-        if (empty($role_id)) {
+        if (empty($group_id)) {
             $start = null;
         }
         
-        if(isset($username) && isset($role_id)) {
+        if(isset($username) && isset($group_id)) {
         	$user = new User();
         	$user->username($username);
-        	$user->role_id($role_id);
+        	$user->group_id($group_id);
         	if(isset($password)) $user->password($password);
         	if(isset($first_name)) $user->first_name($first_name);
         	if(isset($last_name)) $user->last_name($last_name);
@@ -165,7 +168,7 @@ class UserApiController extends PHPFrame_RESTfulController
     }
     
     public function put($id, $username=null, $password=null, $first_name=null, $last_name=null,
-        $email=null, $organisation_id=null, $role_id=null)
+        $email=null, $organisation_id=null, $group_id=null)
     {
         if (empty($id)) {
             $id = null;
@@ -189,24 +192,26 @@ class UserApiController extends PHPFrame_RESTfulController
             	$this->response()->statusCode(PHPFrame_Response::STATUS_NOT_FOUND);
                 return;
             }
-            
-            //hash password if different from stored password
+
+            //hash password if set
             if(isset($password)
                 && $password != $user->password()
+                && !is_null($password)
             ) {
-	            $salt = PHPFrame_Utils_Crypt::genRandomPassword(32);
-	            $crypt = PHPFrame_Utils_Crypt::getCryptedPassword($this->_row->get('password'), $salt);
+	            $salt = $this->app()->crypt()->genRandomPassword(32);
+	            $crypt = $this->app()->crypt()->encryptPassword($password, $salt);
 	            $password = $crypt.':'.$salt;
             }
             
             //update user
             if(isset($password)) $user->password($password);
             if(isset($username)) $user->username($username);
-            if(isset($role_id)) $user->role_id($role_id);
+            if(isset($group_id)) $user->group_id($group_id);
             if(isset($first_name)) $user->first_name($first_name);
             if(isset($last_name)) $user->last_name($last_name);
             if(isset($email)) $user->email($email);
             if(isset($organisation_id)) $user->organisation_id($organisation_id);
+
             $this->_getMapper()->insert($user);
         }
 
@@ -259,7 +264,7 @@ class UserApiController extends PHPFrame_RESTfulController
             return false;
         }
     	$salt = $parts[1];
-    	$crypt = PHPFrame_Utils_Crypt::getCryptedPassword($password, $salt);
+    	$crypt = $this->app()->crypt()->encryptPassword($password, $salt);
     	
     	$match = $crypt.':'.$salt == $stored_password;
     	

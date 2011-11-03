@@ -1,6 +1,6 @@
 <?php
 /**
- * src/controllers/api/role.php
+ * src/controllers/api/group.php
  *
  * PHP version 5
  *
@@ -14,7 +14,7 @@
  */
 
 /**
- * Role API controller.
+ * Group API controller.
  *
  * @category PHPFrame_Applications
  * @package  DoC
@@ -23,7 +23,7 @@
  * @link     http://www.sliderstudio.co.uk
  * @since    1.0
  */
-class RoleApiController extends PHPFrame_RESTfulController
+class GroupApiController extends PHPFrame_RESTfulController
 {
     private $_mapper;
 
@@ -41,11 +41,11 @@ class RoleApiController extends PHPFrame_RESTfulController
     }
 
     /**
-     * Get role name.
+     * Get group name.
      *
-     * @param int $id      id of role the name of which is to be returned.
+     * @param int $id      id of group the name of which is to be returned.
      *
-     * @return string      the role name
+     * @return string      the group name
      * @since  1.0
      */
     public function get($id)
@@ -55,29 +55,29 @@ class RoleApiController extends PHPFrame_RESTfulController
         }
         
         if(!is_null($id)) {
-            $role = $this->_getMapper()->findOne(intval($id));
+            $group = $this->_getMapper()->findOne(intval($id));
         }
 
         //categories not found for some reason, set error status code
-        if(!isset($role) || $role->id() == 0) {
+        if(!isset($group) || $group->id() == 0) {
             $this->response()->statusCode(PHPFrame_Response::STATUS_NOT_FOUND);
             return;
         }
 
-        //return found role name
-        return $this->handleReturnValue($role->name());
+        //return found group name
+        return $this->handleReturnValue($group->name());
     }
     
     /**
-     * Get instance of RoleMapper.
+     * Get instance of GroupMapper.
      *
-     * @return RoleMapper
+     * @return GroupMapper
      * @since  1.0
      */
     private function _getMapper()
     {
         if (is_null($this->_mapper)) {
-            $this->_mapper = new PHPFrame_Mapper('role', $this->db());
+            $this->_mapper = new PHPFrame_Mapper('PHPFrame_Group', $this->db(), '#__groups');
         }
 
         return $this->_mapper;

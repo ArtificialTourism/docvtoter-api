@@ -4,6 +4,9 @@ class User extends PHPFrame_User
 	
     public function __construct(array $options=null)
     {
+
+    	parent::__construct();
+    	
     	$this->addField(
             "first_name",
             null,
@@ -23,30 +26,26 @@ class User extends PHPFrame_User
             new PHPFrame_StringFilter(array('max_length'=>255))
         );
         $this->addField(
-            "password",
-            null,
-            true,
-            new PHPFrame_StringFilter(array('max_length'=>128))
-        );
-        $this->addField(
-            "email",
-            null,
-            true,
-            new PHPFrame_StringFilter(array('max_length'=>255))
-        );
-        $this->addField(
             "organisation_id",
             null,
             true,
             new PHPFrame_IntFilter()
         );
         $this->addField(
-            "role_id",
+            "email",
             null,
-            false,
-            new PHPFrame_IntFilter()
+            true,
+            new PHPFrame_EmailFilter(array("min_length"=>7, "max_length"=>100))
+        );
+        $this->addField(
+            "password",
+            null,
+            true,
+            new PHPFrame_StringFilter()
         );
         
-        parent::__construct($options);
+        if(!is_null($options)) {
+            $this->bind($options);
+        }
     }
 }

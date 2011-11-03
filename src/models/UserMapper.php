@@ -14,7 +14,6 @@ class UserMapper extends PHPFrame_Mapper
         ->params(":username",$username);
 
         $user = $this->findOne($id_obj);
-
         return $user;
     }
     
@@ -24,7 +23,7 @@ class UserMapper extends PHPFrame_Mapper
         $table = $id_obj->getTableName();
         
         $id_obj->select($table.".*")
-        ->join('JOIN eventuser e ON e.user_id = '.$table.'.id')
+        ->join('JOIN eventusers e ON e.user_id = '.$table.'.id')
         ->where("e.event_id", "=", ":event")
         ->params(":event",$event);
         return $this->find($id_obj);
