@@ -46,12 +46,18 @@ class CardApiController extends PHPFrame_RESTfulController
      * @param int $id    [Optional] if specified a single card will be returned.
      * @param int $limit [Optional] Default value is 10.
      * @param int $page  [Optional] Default value is 1.
+     * @param int $tag_id [Optional] if specified only cards which have been tagged
+     * with this tag will be returned
+     * @param int $owner [Optional] only used when $tag_id is given, if specified will
+     * only return cards tagged with specific tag by a specific user
+     * @param boolean $include_owner [Optional] Default value is 0, if set to 1 card
+     * will contain owner user object in card owner_user property
      *
      * @return array|object Either a single card object or an array containing
      *                      card objects.
      * @since  1.0
      */
-    public function get($id=null, $limit=10, $page=1, $tag_id=null, $owner=null)
+    public function get($id=null, $limit=10, $page=1, $tag_id=null, $owner=null, $include_owner=0)
     {
         if (empty($id)) {
             $id = null;
@@ -73,6 +79,10 @@ class CardApiController extends PHPFrame_RESTfulController
             $owner = null;
         }
 
+        if ($include_owner == 1) {
+            $this->_getMapper()->include_owner_object(true);
+        }
+
         if (isset($id)) {
             $ret = $this->_fetchCard($id);
         } elseif(isset($tag_id)) {
@@ -82,6 +92,8 @@ class CardApiController extends PHPFrame_RESTfulController
             $id_obj->limit($limit, ($page-1)*$limit);
             $ret = $this->_getMapper()->find($id_obj);
         }
+
+        $this->_getMapper()->include_owner_object(false);
 
         return $this->handleReturnValue($ret);
     }

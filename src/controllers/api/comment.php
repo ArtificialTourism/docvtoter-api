@@ -44,17 +44,25 @@ class CommentApiController extends PHPFrame_RESTfulController
      * Get comment.
      *
      * @param int $id      id of comment to be returned.
+     * @param boolean $include_owner [Optional] Default value 0, if set to 1 owner user object
+     * will be included in owner_user field
      *
      * @return object      a comment object.
      * @since  1.0
      */
-    public function get($id)
+    public function get($id, $include_owner=0)
     {
         if (empty($id)) {
             $id = null;
         }
+
+        if ($include_owner == 1) {
+            $this->_getMapper()->include_owner_object(true);
+        }
         
         $comment = $this->_getMapper()->findOne(intval($id));
+
+        $this->_getMapper()->include_owner_object(false);
 
         if(!isset($comment) || $comment->id() == 0)
         {
@@ -140,7 +148,7 @@ class CommentApiController extends PHPFrame_RESTfulController
     private function _getMapper()
     {
         if (is_null($this->_mapper)) {
-            $this->_mapper = new PHPFrame_Mapper('comment', $this->db());
+            $this->_mapper = new CommentMapper($this->db());
         }
 
         return $this->_mapper;

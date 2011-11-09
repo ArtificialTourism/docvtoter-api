@@ -1,7 +1,9 @@
 <?php
 class Card extends PHPFrame_PolymorphicPersistentObject
 {
-	
+
+    public $owner_user;
+
     public function __construct(array $options=null)
     {
     	$this->addField(
@@ -89,4 +91,14 @@ class Card extends PHPFrame_PolymorphicPersistentObject
         );
         parent::__construct($options);
     }
+
+    public function ownerUser(User $owner=null)
+    {
+        if (!is_null($owner)) {
+            $this->owner_user = $owner;
+        }
+
+        return $this->owner_user;
+    }
+
 }

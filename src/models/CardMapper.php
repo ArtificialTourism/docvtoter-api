@@ -1,18 +1,43 @@
 <?php
 class CardMapper extends PHPFrame_Mapper
 {
+    private $_include_owner = false;
+    private $_user_mapper;
+
 	public function __construct(PHPFrame_Database $db)
     {
         parent::__construct("Card", $db, "#__card");
+
+        $this->_user_mapper = new UserMapper($db);
     }
     
     public function find(PHPFrame_IdObject $id_obj=null)
     {
     	$id_obj->where("status","=","'active'");
         $collection = parent:: find($id_obj);
+
+        if ($this->_include_owner) {
+            foreach ($collection as $card) {
+                $owner = $this->_user_mapper->findOne($card->owner());
+                $card->ownerUser($owner);
+            }
+        }
+
         return $collection;
     }
-    
+
+    public function findOne($id_obj)
+    {
+        $card = parent:: findOne($id_obj);
+
+        if ($this->_include_owner) {
+            $owner = $this->_user_mapper->findOne($card->owner());
+            $card->ownerUser($owner);
+        }
+        
+        return $card;
+    }
+
     public function findByDeckId($deck_id)
     {
         $id_obj = $this->getIdObject();
@@ -59,5 +84,10 @@ class CardMapper extends PHPFrame_Mapper
         	->params(":user",$user);
         }
         return $this->find($id_obj);
+    }
+
+    public function include_owner_object($include_owner=false)
+    {
+        $this->_include_owner = $include_owner;
     }
 }
