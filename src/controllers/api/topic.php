@@ -48,14 +48,23 @@ class TopicApiController extends PHPFrame_RESTfulController
      * @return array|object topic object or an array containing topic objects.
      * @since  1.0
      */
-    public function get($id=null)
+    public function get($id=null, $owner=null)
     {
         if (empty($id)) {
             $id = null;
         }
+
+        if (empty($owner)) {
+            $owner = null;
+        }
         
         if(!is_null($id)) {
             $ret = $this->_getMapper()->findOne(intval($id));
+        } elseif (!is_null($owner)) {
+            $id_obj = $this->_getMapper()->getIdObject();
+            $id_obj->where('owner', '=', ':owner')
+                ->params(':owner', $owner);
+            $ret = $this->_getMapper()->find($id_obj);
         } else {
             $ret = $this->_getMapper()->find();
         }
@@ -70,10 +79,14 @@ class TopicApiController extends PHPFrame_RESTfulController
         return $this->handleReturnValue($ret);
     }
     
-    public function post($name) 
+    public function post($name, $owner=null)
     {
         if (empty($name)) {
             $name = null;
+        }
+
+        if (empty($owner)) {
+            $owner = null;
         }
         
         //check duplicate name
@@ -87,8 +100,11 @@ class TopicApiController extends PHPFrame_RESTfulController
         {
         	$topic = new Topic();
         	$topic->name($name);
+            if (isset($owner)) $topic->owner($owner);
         	$this->_getMapper()->insert($topic);
         }
+
+        
         
         return $this->handleReturnValue($topic);
     }

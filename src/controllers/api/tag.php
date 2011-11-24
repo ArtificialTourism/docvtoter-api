@@ -44,11 +44,15 @@ class TagApiController extends PHPFrame_RESTfulController
      * Get tag(s).
      *
      * @param int $id       [optional] id of tag to be returned.
+     * @param string $name  [optional] filters by name, only valid in combination with type
+     * @param string $type  [optional] filters by type, only valid in combination with name
+     * @param int $card_id  [optional] filters the tags a card has been tagged with
+     * @param int $owner    [optional] filters
      *
      * @return array|object tag object or an array containing tag objects.
      * @since  1.0
      */
-    public function get($id=null, $name=null, $type=null, $card_id=null)
+    public function get($id=null, $name=null, $type=null, $card_id=null, $owner=null)
     {
         if (empty($id)) {
             $id = null;
@@ -61,13 +65,19 @@ class TagApiController extends PHPFrame_RESTfulController
         if (empty($type)) {
             $type = null;
         }
+
+        if (empty($owner)) {
+            $owner = null;
+        }
         
-        if(isset($id)) {
+        if(!is_null($id)) {
             $ret = $this->_getMapper()->findOne(intval($id));
-        } elseif(isset($name) && isset($type)) {
+        } elseif(!is_null($name) && !is_null($type)) {
         	$ret = $this->_getMapper()->findByNameType($name, $type);
-        } elseif(isset($card_id)) {
+        } elseif(!is_null($card_id)) {
             $ret = $this->_getMapper()->findByCard($card_id);
+        } elseif (!is_null($owner)) {
+            $ret = $this->_getMapper()->findByOwner($owner);
         } else {
             $ret = $this->_getMapper()->find();
         }
@@ -82,7 +92,7 @@ class TagApiController extends PHPFrame_RESTfulController
         return $this->handleReturnValue($ret);
     }
     
-    public function post($name, $type='tag') 
+    public function post($name, $type='tag', $owner=null)
     {
         if (empty($name)) {
             $name = null;
@@ -90,6 +100,10 @@ class TagApiController extends PHPFrame_RESTfulController
         
         if (empty($type)) {
             $type = null;
+        }
+
+        if (empty($owner)) {
+            $owner = null;
         }
         
         //check duplicate name
@@ -101,6 +115,7 @@ class TagApiController extends PHPFrame_RESTfulController
         	$tag = new Tags();
         	$tag->name($name);
         	$tag->type($type);
+            if(isset($owner)) $tag->owner($owner);
         	$this->_getMapper()->insert($tag);
         }
         

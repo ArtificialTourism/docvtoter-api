@@ -48,14 +48,23 @@ class CategoryApiController extends PHPFrame_RESTfulController
      * @return array        an array containing category objects.
      * @since  1.0
      */
-    public function get($id=null)
+    public function get($id=null, $owner=null)
     {
         if (empty($id)) {
             $id = null;
         }
+
+        if (empty($owner)) {
+            $owner = null;
+        }
         
         if(!is_null($id)) {
             $ret = $this->_getMapper()->findOne(intval($id));
+        } else if(!is_null($owner)) {
+            $id_obj = $this->_getMapper()->getIdObject();
+            $id_obj->where('owner', '=', ':owner')
+                ->params(':owner', $owner);
+            $ret = $this->_getMapper()->find($id_obj);
         } else {
             $ret = $this->_getMapper()->find();
         }
@@ -70,7 +79,7 @@ class CategoryApiController extends PHPFrame_RESTfulController
         return $this->handleReturnValue($ret);
     }
     
-    public function post($name, $collection=null) 
+    public function post($name, $collection=null, $owner=null)
     {
         if (empty($name)) {
             $name = null;
@@ -78,6 +87,10 @@ class CategoryApiController extends PHPFrame_RESTfulController
         
         if (empty($tag_id)) {
             $tag_id = null;
+        }
+
+        if (empty($owner)) {
+            $owner = null;
         }
         
         //check duplicate name & collection
@@ -98,6 +111,7 @@ class CategoryApiController extends PHPFrame_RESTfulController
         	$category = new Category();
         	$category->name($name);
         	if(isset($collection)) $category->collection($collection);
+            if (isset($owner)) $category->owner($owner);
         	$this->_getMapper()->insert($category);
         }
         

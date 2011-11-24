@@ -47,11 +47,12 @@ class UserApiController extends PHPFrame_RESTfulController
      * @param int $event   [optional] event_id for event of which all users is to be returned.
      * @param string $username   [optional] username for matching password to id a user.
      * @param string $password   [optional] password for matching username to id a user.
+     * @param int $group_id [optional] group_id for matching users with the group id.
      *
-     * @return object      a user object.
+     * @return object      a user object or several user objects.
      * @since  1.0
      */
-    public function get($id=null, $event=null, $username=null, $password=null)
+    public function get($id=null, $event=null, $username=null, $password=null, $group_id=null)
     {
         if (empty($id)) {
             $id = null;
@@ -68,10 +69,15 @@ class UserApiController extends PHPFrame_RESTfulController
         if (empty($password)) {
             $password = null;
         }
+
+        if (empty($group_id)) {
+            $group_id = null;
+        }
         
         if((!isset($id) || empty($id))
             && (!isset($event) || empty($event))
             && (!isset($username) || !isset($password))
+            && (!isset($group_id))
         ) {
             $this->response()->statusCode(PHPFrame_Response::STATUS_BAD_REQUEST);
             return;
@@ -111,6 +117,19 @@ class UserApiController extends PHPFrame_RESTfulController
                 $this->response()->statusCode(PHPFrame_Response::STATUS_NOT_FOUND);
                 $this->response()->body("Bad Username and Password combination");
                 return;
+            }
+        }
+
+        if (isset($group_id)) {
+            $id_obj = $this->_getMapper()->getIdObject();
+            $id_obj->where('group_id', '=', ':groupid')
+                ->params(':groupid', $group_id);
+            $users = $this->_getMapper()->find($id_obj);
+            if ($users->count() == 0) {
+                $this->response()->statusCode(PHPFrame_Response::STATUS_NOT_FOUND);
+                return;
+            } else {
+                return $this->handleReturnValue($users);
             }
         }
 

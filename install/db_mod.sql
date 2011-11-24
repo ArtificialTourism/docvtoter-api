@@ -31,3 +31,5 @@ ALTER TABLE `user` CHANGE COLUMN role_id group_id int(11) DEFAULT 0;
 ALTER TABLE  `user` ADD  `params` VARCHAR( 255 ) NULL DEFAULT NULL AFTER `group_id`;
 
 UPDATE  `api_methods` SET  `method` = 'group/get' WHERE  `method` = 'role/get';
+
+ALTER TABLE `organisation` ADD `owner` INT NOT NULL DEFAULT '0' AFTER `mtime`;
