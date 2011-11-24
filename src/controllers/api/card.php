@@ -44,10 +44,12 @@ class CardApiController extends PHPFrame_RESTfulController
      * Get user(s).
      *
      * @param int $id    [Optional] if specified a single card will be returned.
-     * @param int $limit [Optional] Default value is 10.
-     * @param int $page  [Optional] Default value is 1.
+     * @param int $limit [Optional] Default value is 10, limits amount of cards
+     * returned. Limiting and paging only applies if all cards are being returned.
+     * @param int $page  [Optional] Default value is 1, page of limited cards.
+     * Limiting and paging only applies if all cards are being returned
      * @param int $tag_id [Optional] if specified only cards which have been tagged
-     * with this tag will be returned
+     * with this tag will be returned.
      * @param int $tag_user [Optional] only used in combination with tag_id,
      * if specified will only return cards tagged by a specific user
      * @param int $owner [Optional] owner of the card, if specified only cards
