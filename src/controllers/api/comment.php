@@ -41,34 +41,51 @@ class CommentApiController extends PHPFrame_RESTfulController
     }
 
     /**
-     * Get comment.
+     * Get comment(s). Either id or owner parameter should be specified or a
+     * bad request status code will be returned.
      *
-     * @param int $id      id of comment to be returned.
+     * @param int $id      [Optional] id of comment to be returned.
+     * @param int $owner   [Optional] owner of comment, filter by owner.
      * @param boolean $include_owner [Optional] Default value 0, if set to 1 owner user object
      * will be included in owner_user field
      *
-     * @return object      a comment object.
+     * @return object|array      a comment object or array of comment objects.
      * @since  1.0
      */
-    public function get($id, $include_owner=0)
+    public function get($id=null, $owner=null, $include_owner=0)
     {
         if (empty($id)) {
             $id = null;
         }
 
+        if (empty($owner)) {
+            $owner = null;
+        }
+
+        if (!isset($id) && !isset($owner)) {
+            $this->response()->statusCode(PHPFrame_Response::STATUS_BAD_REQUEST);
+            return;
+        }
+
         if ($include_owner == 1) {
             $this->_getMapper()->include_owner_object(true);
         }
-        
-        $comment = $this->_getMapper()->findOne(intval($id));
+
+        if (isset($id)) {
+            $comment = $this->_getMapper()->findOne(intval($id));
+
+            if(!isset($comment) || $comment->id() == 0)
+            {
+                $this->response()->statusCode(PHPFrame_Response::STATUS_NOT_FOUND);
+                return;
+            }
+        } elseif (isset($owner)) {
+            $comment = $this->_getMapper()->findByOwner($owner);
+        }
 
         $this->_getMapper()->include_owner_object(false);
 
-        if(!isset($comment) || $comment->id() == 0)
-        {
-        	$this->response()->statusCode(PHPFrame_Response::STATUS_NOT_FOUND);
-            return;
-        }
+
         
         //return found comment
         return $this->handleReturnValue($comment);

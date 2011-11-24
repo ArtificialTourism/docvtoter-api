@@ -33,4 +33,13 @@ class DeckMapper extends PHPFrame_Mapper
         
         return $collection->current();
     }
+
+    public function findByOwner($owner)
+    {
+        $id_obj = $this->getIdObject();
+        $id_obj->where('owner', '=', ':owner')
+            ->params(':owner', $owner);
+
+        return $this->find($id_obj);
+    }
 }

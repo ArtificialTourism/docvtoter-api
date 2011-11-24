@@ -41,18 +41,29 @@ class DeckApiController extends PHPFrame_RESTfulController
     }
 
     /**
-     * Get card(s).
+     * Get deck(s). Either id or owner parameter must be provided or will
+     * result in a bad request status code.
      *
-     * @param int $id       deck to be returned.
+     * @param int $id     [Optional] deck to be returned.
+     * @param int $owner  [Optional] owner of the deck, filter by owner
      *
-     * @return array|object Either a single card object or an array containing
-     *                      card objects.
+     * @return array|object Either a single deck object or an array containing
+     *                      deck objects.
      * @since  1.0
      */
-    public function get($id)
+    public function get($id=null, $owner=null)
     {
         if (empty($id)) {
             $id = null;
+        }
+
+        if (empty($owner)) {
+            $owner = null;
+        }
+
+        if (!isset($id) && !isset($owner)) {
+            $this->response()->statusCode(PHPFrame_Response::STATUS_BAD_REQUEST);
+            return;
         }
 
         if (!is_null($id)) {
@@ -62,12 +73,18 @@ class DeckApiController extends PHPFrame_RESTfulController
                 $this->response()->statusCode(PHPFrame_Response::STATUS_NOT_FOUND);
                 return;
             }
-//var_dump($ret);exit;            
+            
+            return $this->handleReturnValue($ret);
+        }
+
+        if (!is_null($owner)) {
+            $ret = $this->_getDeckMapper()->findByOwner($owner);
+
             return $this->handleReturnValue($ret);
         }
     }
     
-    public function post($name, $description=null, $id=null, $user=null)
+    public function post($name, $description=null, $id=null, $owner=null)
     {
         if (empty($id)) {
             $id = null;
@@ -79,13 +96,13 @@ class DeckApiController extends PHPFrame_RESTfulController
         	$deck = $this->_fetchDeck($id);
         }
         
-        if(empty($user)) {
-            $user = null;
+        if(empty($owner)) {
+            $owner = null;
         }
         
         $deck->name($name);
         if(!is_null($description)) $deck->description($description);
-        if(isset($user)) $deck->owner($user);
+        if(isset($owner)) $deck->owner($owner);
         
         $this->_getDeckMapper()->insert($deck);
         
@@ -127,7 +144,7 @@ class DeckApiController extends PHPFrame_RESTfulController
     /**
      * Get instance of DeckMapper.
      *
-     * @return CardMapper
+     * @return DeckMapper
      * @since  1.0
      */
     private function _getDeckMapper()

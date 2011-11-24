@@ -16,6 +16,9 @@ class OrganisationMapper extends PHPFrame_Mapper
 
         foreach ($collection as $org){
         	$db = $this->_db;
+            if (!$id_obj) {
+                $id_obj = $this->getIdObject();
+            }
         	$table = $id_obj->getTableName();
 	        
 	        $sql = "SELECT id FROM $table WHERE parent_id = :id";
@@ -43,5 +46,14 @@ class OrganisationMapper extends PHPFrame_Mapper
         $collection->rewind();
         
         return $collection->current();
+    }
+
+    public function findByOwner($owner)
+    {
+        $id_obj = $this->getIdObject();
+        $id_obj->where('owner', '=', ':owner')
+            ->params(':owner', $owner);
+
+        return $this->find($id_obj);
     }
 }

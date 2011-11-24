@@ -37,6 +37,15 @@ class CommentMapper extends PHPFrame_Mapper
         return $comment;
     }
 
+    public function findByOwner($owner)
+    {
+        $id_obj = $this->getIdObject();
+        $id_obj->where('owner', '=', ':owner')
+            ->params(':owner', $owner);
+
+        return $this->find($id_obj);
+    }
+    
     public function include_owner_object($include_owner=false)
     {
         $this->_include_owner = $include_owner;

@@ -48,8 +48,10 @@ class CardApiController extends PHPFrame_RESTfulController
      * @param int $page  [Optional] Default value is 1.
      * @param int $tag_id [Optional] if specified only cards which have been tagged
      * with this tag will be returned
-     * @param int $owner [Optional] only used when $tag_id is given, if specified will
-     * only return cards tagged with specific tag by a specific user
+     * @param int $tag_user [Optional] only used in combination with tag_id,
+     * if specified will only return cards tagged by a specific user
+     * @param int $owner [Optional] owner of the card, if specified only cards
+     * owned by this user are returned
      * @param boolean $include_owner [Optional] Default value is 0, if set to 1 card
      * will contain owner user object in card owner_user property
      *
@@ -57,7 +59,8 @@ class CardApiController extends PHPFrame_RESTfulController
      *                      card objects.
      * @since  1.0
      */
-    public function get($id=null, $limit=10, $page=1, $tag_id=null, $owner=null, $include_owner=0)
+    public function get($id=null, $limit=10, $page=1, $tag_id=null,
+        $tag_user=null, $owner=null, $include_owner=0)
     {
         if (empty($id)) {
             $id = null;
@@ -75,6 +78,10 @@ class CardApiController extends PHPFrame_RESTfulController
             $tag_id = null;
         }
         
+        if (empty($tag_user)) {
+            $tag_user = null;
+        }
+
         if (empty($owner)) {
             $owner = null;
         }
@@ -86,7 +93,9 @@ class CardApiController extends PHPFrame_RESTfulController
         if (isset($id)) {
             $ret = $this->_fetchCard($id);
         } elseif(isset($tag_id)) {
-        	$ret = $this->_getMapper()->findByTag($tag_id, $owner);
+        	$ret = $this->_getMapper()->findByTag($tag_id, $tag_user);
+        } elseif (isset($owner)) {
+            $ret = $this->_getMapper()->findByOwner($owner);
         } else {
             $id_obj = $this->_getMapper()->getIdObject();
             $id_obj->limit($limit, ($page-1)*$limit);

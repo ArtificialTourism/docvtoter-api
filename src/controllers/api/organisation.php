@@ -44,21 +44,30 @@ class OrganisationApiController extends PHPFrame_RESTfulController
      * Get organisations.
      *
      * @param int $id           [optional] id of organisation to be returned.
+     * @param int $owner        [optional] owner of organisation, filter by owner.
      *
      * @return object|arrray    an organisation object or array of them if no id given.
      * @since  1.0
      */
-    public function get($id=null)
+    public function get($id=null, $owner=null)
     {
         if (empty($id)) {
             $id = null;
         }
+
+        if (empty($owner)) {
+            $owner = null;
+        }
         
         if(!is_null($id)) {
             $ret = $this->_getMapper()->findOne(intval($id));
+        } elseif (!is_null($owner)) {
+            $ret = $this->_getMapper()->findByOwner($owner);
         } else {
         	$ret = $this->_getMapper()->find();
         }
+
+        $this->logger()->write(print_r($ret, true));
         
         //organisation(s) not found for some reason, set error status code
         if(!isset($ret)) {
@@ -93,7 +102,7 @@ class OrganisationApiController extends PHPFrame_RESTfulController
         	$organisation->name($name);
         	if(isset($location_id)) $organisation->location_id($location_id);
         	if(isset($parent_id)) $organisation->parent_id($parent_id);
-        	if(isset($owner)) $organisation->parent_id($owner);
+        	if(isset($owner)) $organisation->owner($owner);
         	
         	$this->_getMapper()->insert($organisation);
         }

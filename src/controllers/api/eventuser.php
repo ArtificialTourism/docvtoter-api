@@ -65,7 +65,7 @@ class EventuserApiController extends PHPFrame_RESTfulController
         }
         
         if (isset($event_id)) {
-            $ret = $this->_getMapper()->findByEventUser($event_id, $user_id);
+            $ret = $this->_getMapper()->findByEvent($event_id);
             
             if(!isset($ret)) {
                 $this->response()->statusCode(PHPFrame_Response::STATUS_NOT_FOUND);

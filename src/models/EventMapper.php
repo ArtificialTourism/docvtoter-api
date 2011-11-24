@@ -17,4 +17,12 @@ class EventMapper extends PHPFrame_Mapper
         ->params(":user",$user);
         return $this->find($id_obj);
     }
+
+    public function findByOwner($owner)
+    {
+        $id_obj = $this->getIdObject();
+        $id_obj->where('owner', '=', ':owner')
+            ->params(':owner', $owner);
+        return $this->find($id_obj);
+    }
 }

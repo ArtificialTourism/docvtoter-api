@@ -41,14 +41,19 @@ class EventApiController extends PHPFrame_RESTfulController
     }
 
     /**
-     * Get event.
+     * Get event. Although parameters are optional at least one
+     * should be specified or a bad request status code will be sent.
      *
-     * @param int $id      id of event to be returned.
+     * @param int $id      [optional] id of event to be returned.
+     * @param int $user    [optional] id of a user, if specified all
+     * events the user attended will be returned
+     * @param int $owner   [optional] owner of the event, if specified 
+     * events owned by the user will be returned
      *
      * @return object      an event object.
      * @since  1.0
      */
-    public function get($id = null, $user = null)
+    public function get($id = null, $user = null, $owner = null)
     {
         if (empty($id)) {
             $id = null;
@@ -57,8 +62,13 @@ class EventApiController extends PHPFrame_RESTfulController
         if (empty($user)) {
             $user = null;
         }
+
+        if (empty($owner)) {
+            $owner = null;
+        }
         
-        if((!isset($id) || empty($id)) && (!isset($user) || empty($user))) {
+        if((!isset($id) || empty($id)) && (!isset($user) || empty($user))
+           && (!isset($owner) || empty($owner))) {
         	$this->response()->statusCode(PHPFrame_Response::STATUS_BAD_REQUEST);
             return;
         }
@@ -76,6 +86,16 @@ class EventApiController extends PHPFrame_RESTfulController
         if(isset($user)) {
         	$ret = $this->_getMapper()->findByUser($user);
         	
+            if(!isset($ret))
+            {
+                $this->response()->statusCode(PHPFrame_Response::STATUS_NOT_FOUND);
+                return;
+            }
+        }
+
+        if (isset($owner)) {
+            $ret = $this->_getMapper()->findByOwner($owner);
+            
             if(!isset($ret))
             {
                 $this->response()->statusCode(PHPFrame_Response::STATUS_NOT_FOUND);
