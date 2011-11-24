@@ -150,9 +150,9 @@ class EventApiController extends PHPFrame_RESTfulController
         return $this->handleReturnValue($event);
     }
     
-    public function put($id, $name=null, $description=null, $summary=null, $end=null,
-        $location_id=null, $allow_anon=null, $auto_publish=null, $auto_close=null,
-        $private=null, $password=null)
+    public function put($id, $name=null, $description=null, $summary=null, $start=null,
+        $end=null, $location_id=null, $allow_anon=null, $auto_publish=null,
+        $auto_close=null, $private=null, $password=null)
     {
         if (empty($id)) {
             $id = null;
@@ -173,6 +173,7 @@ class EventApiController extends PHPFrame_RESTfulController
             if(isset($name)) $event->name($name);
             if(isset($description)) $event->description($description);
             if(isset($summary)) $event->summary($summary);
+            if (isset($start)) $event->start($start);
             if(isset($end)) $event->end($end);
             if(isset($location_id)) $event->location_id($location_id);
             if(isset($allow_anon)) $event->allow_anon($allow_anon);
