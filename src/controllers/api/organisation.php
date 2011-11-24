@@ -79,7 +79,7 @@ class OrganisationApiController extends PHPFrame_RESTfulController
         return $this->handleReturnValue($ret);
     }
     
-    public function post($name, $location_id=null, $parent_id=null, $owner=null) 
+    public function post($name, $location_id=null, $parent_id=null, $sector=null, $owner=null)
     {
         if (empty($name)) {
             $name = null;
@@ -92,6 +92,10 @@ class OrganisationApiController extends PHPFrame_RESTfulController
         if (empty($parent_id)) {
         	$parent_id = null;
         }
+
+        if (empty($sector)) {
+            $sector = null;
+        }
         
         if (empty($owner)) {
             $owner = null;
@@ -102,6 +106,7 @@ class OrganisationApiController extends PHPFrame_RESTfulController
         	$organisation->name($name);
         	if(isset($location_id)) $organisation->location_id($location_id);
         	if(isset($parent_id)) $organisation->parent_id($parent_id);
+            if(isset($sector)) $organisation->sector($sector);
         	if(isset($owner)) $organisation->owner($owner);
         	
         	$this->_getMapper()->insert($organisation);
