@@ -152,7 +152,7 @@ class EventApiController extends PHPFrame_RESTfulController
     
     public function put($id, $name=null, $description=null, $summary=null, $start=null,
         $end=null, $location_id=null, $allow_anon=null, $auto_publish=null,
-        $auto_close=null, $private=null, $password=null)
+        $auto_close=null, $private=null, $password=null, $owner=null)
     {
         if (empty($id)) {
             $id = null;
@@ -181,6 +181,7 @@ class EventApiController extends PHPFrame_RESTfulController
             if(isset($auto_close)) $event->auto_close($auto_close);
             if(isset($password)) $event->password($password);
             if(isset($private)) $event->private($private);
+            if(isset($owner)) $event->owner($owner);
             $this->_getMapper()->insert($event);
         }
 
