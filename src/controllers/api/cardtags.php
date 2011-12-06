@@ -116,7 +116,7 @@ class CardtagsApiController extends PHPFrame_RESTfulController
         ->where('tag_id','=',':tag_id')
         ->params(':card_id',$card_id)
         ->params(':tag_id',$tag_id);
-        if(isset($user)) {
+        if(isset($owner)) {
             $id_obj->where('owner','=',':owner')
             ->params(':owner',$owner);  
         }
