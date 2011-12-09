@@ -63,7 +63,7 @@ class CardtagsApiController extends PHPFrame_RESTfulController
             $id_obj = $this->_getMapper()->getIdObject();
             $id_obj->where('card_id','=',':card_id')
             ->params(':card_id',$card_id);
-            if(isset($tag)) {
+            if(isset($tag_id)) {
                 $id_obj->where('tag_id','=',':tag_id')
                 ->params(':tag_id',$tag_id);
             }
