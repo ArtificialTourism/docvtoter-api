@@ -52,7 +52,7 @@ class TagApiController extends PHPFrame_RESTfulController
      * @return array|object tag object or an array containing tag objects.
      * @since  1.0
      */
-    public function get($id=null, $name=null, $type=null, $card_id=null, $owner=null)
+    public function get($id=null, $name=null, $type="system", $card_id=null, $owner=null)
     {
         if (empty($id)) {
             $id = null;
