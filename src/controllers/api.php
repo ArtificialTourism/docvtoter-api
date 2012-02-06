@@ -224,6 +224,8 @@ class ApiController extends PHPFrame_RESTfulController
             } catch (OAuthException $e) {
                 $this->response()->body(OAuthProvider::reportProblem($e));
                 $this->_oauth_error = true;
+$this->logger()->write(print_r($api_method_info,true));
+$this->logger()->write(print_r($this->request()->params(),true));
             }
 
         } elseif ($this->_isFrontendCall() && $api_method_info["cookie"] > 0) {
