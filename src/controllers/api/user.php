@@ -169,7 +169,10 @@ class UserApiController extends PHPFrame_RESTfulController
         	if(isset($password)) $user->password($password);
         	if(isset($first_name)) $user->first_name($first_name);
         	if(isset($last_name)) $user->last_name($last_name);
-        	if(isset($email)) $user->email($email);
+        	if(isset($email)) { 
+                if($email == "")$email = null;
+        		$user->email($email);
+        	}
         	if(isset($organisation_id)) $user->organisation_id($organisation_id);
         	
         	$this->_getMapper()->insert($user);
