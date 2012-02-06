@@ -220,6 +220,7 @@ class ApiController extends PHPFrame_RESTfulController
                         $this->_oauth_server->getCallback()
                     );
                 }
+$this->logger()->write("WORKED: ");
 $this->logger()->write(print_r($api_method_info,true));
 $this->logger()->write(print_r($this->request()->params(),true));
 $this->logger()->write(print_r($this->request()->headers(),true));                
@@ -227,6 +228,7 @@ $this->logger()->write(print_r($this->request()->headers(),true));
             } catch (OAuthException $e) {
                 $this->response()->body(OAuthProvider::reportProblem($e));
                 $this->_oauth_error = true;
+$this->logger()->write("FAILED: ");               
 $this->logger()->write(print_r($api_method_info,true));
 $this->logger()->write(print_r($this->request()->params(),true));
 $this->logger()->write(print_r($this->request()->headers(),true));
@@ -237,16 +239,12 @@ $this->logger()->write(print_r($this->request()->headers(),true));
                 try {
                     $this->checkToken();
                 } catch (Exception $e) {
-$this->logger()->write(print_r($api_method_info,true));
-$this->logger()->write(print_r($this->request()->params(),true));
                     throw new RuntimeException("Permission denied!", 401);
                 }
             }
 
         } elseif ($api_method_info["cookie"] == 0) {
             throw new RuntimeException("Permission denied!", 401);
-$this->logger()->write(print_r($api_method_info,true));
-$this->logger()->write(print_r($this->request()->params(),true));
         }
     }
 
