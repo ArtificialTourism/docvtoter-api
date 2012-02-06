@@ -231,12 +231,16 @@ class ApiController extends PHPFrame_RESTfulController
                 try {
                     $this->checkToken();
                 } catch (Exception $e) {
+$this->logger()->write(print_r($api_method_info,true));
+$this->logger()->write(print_r($this->request()->params(),true));
                     throw new RuntimeException("Permission denied!", 401);
                 }
             }
 
         } elseif ($api_method_info["cookie"] == 0) {
             throw new RuntimeException("Permission denied!", 401);
+$this->logger()->write(print_r($api_method_info,true));
+$this->logger()->write(print_r($this->request()->params(),true));
         }
     }
 
