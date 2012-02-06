@@ -220,6 +220,9 @@ class ApiController extends PHPFrame_RESTfulController
                         $this->_oauth_server->getCallback()
                     );
                 }
+$this->logger()->write(print_r($api_method_info,true));
+$this->logger()->write(print_r($this->request()->params(),true));
+$this->logger()->write(print_r($this->request()->headers(),true));                
 
             } catch (OAuthException $e) {
                 $this->response()->body(OAuthProvider::reportProblem($e));
