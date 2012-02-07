@@ -1,4 +1,4 @@
-This is the Application Programming Interface (API) for Drivers of Change (DoC)
+This is home to the Application Programming Interface (API) for Drivers of Change (DoC)
 <br /><br />
 The DoC API can be accessed at <a href="<?php echo $base_url."api"?>"><?php echo $base_url."api"?></a>
 <br /><br />
