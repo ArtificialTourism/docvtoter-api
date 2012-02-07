@@ -8,7 +8,10 @@ class DocController extends PHPFrame_ActionController
 
     public function index()
     {
-        $view = $this->view("index");
+        $view = $this->view("usage");
+        
+        $base_url = $this->config()->get("base_url"); 
+        $view->addData('base_url',$base_url);
 
         $this->response()->title("Drivers of Change");
         $this->response()->body($view);
