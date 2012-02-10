@@ -220,18 +220,18 @@ class ApiController extends PHPFrame_RESTfulController
                         $this->_oauth_server->getCallback()
                     );
                 }
-$this->logger()->write("WORKED: ");
-$this->logger()->write(print_r($api_method_info,true));
-$this->logger()->write(print_r($this->request()->params(),true));
-$this->logger()->write(print_r($this->request()->headers(),true));                
+//$this->logger()->write("WORKED: ");
+//$this->logger()->write(print_r($api_method_info,true));
+//$this->logger()->write(print_r($this->request()->params(),true));
+//$this->logger()->write(print_r($this->request()->headers(),true));                
 
             } catch (OAuthException $e) {
                 $this->response()->body(OAuthProvider::reportProblem($e));
                 $this->_oauth_error = true;
-$this->logger()->write("FAILED: ");               
-$this->logger()->write(print_r($api_method_info,true));
-$this->logger()->write(print_r($this->request()->params(),true));
-$this->logger()->write(print_r($this->request()->headers(),true));
+//$this->logger()->write("FAILED: ");               
+//$this->logger()->write(print_r($api_method_info,true));
+//$this->logger()->write(print_r($this->request()->params(),true));
+//$this->logger()->write(print_r($this->request()->headers(),true));
             }
 
         } elseif ($this->_isFrontendCall() && $api_method_info["cookie"] > 0) {

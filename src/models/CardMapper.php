@@ -15,14 +15,16 @@ class CardMapper extends PHPFrame_Mapper
     
     public function find(PHPFrame_IdObject $id_obj=null)
     {
+    	if(!isset($id_obj)) {
+    		$id_obj = $this->getIdObject();
+    	}
     	$id_obj->where("status","=","'active'");
         $collection = parent:: find($id_obj);
-        
         if($this->_event_id) {
         	//create map of card_id -> category_id
         	$card_category = array();
             //event_card id_obj:        	
-            $ec_id_obj = $_eventcard_mapper->getIdObject();
+            $ec_id_obj = $this->_eventcard_mapper->getIdObject();
             $ec_id_obj->where("event_id","=",":event_id")
             ->params(":event_id",$this->_event_id);
             //get sql
@@ -46,8 +48,7 @@ class CardMapper extends PHPFrame_Mapper
         		if(isset($card_category[$card_id]) && !empty($card_category[$card_id]))
         		  $card->eventCategoryId($card_category[$card_id]);
         	}
-        	
-            $card->eventCategoryId($card->category_id);
+            $card->eventCategoryId($card->category_tag_id);
         }
 
         return $collection;
@@ -83,8 +84,7 @@ class CardMapper extends PHPFrame_Mapper
     
     public function findByEventId($event_id)
     {
-    	$event = $this->_event_mapper()->fetch($event_id);
-    	
+    	$event_id = intval($event_id);
         $id_obj = $this->getIdObject();
         $table = $id_obj->getTableName();
         $id_obj->select($table.".*")
