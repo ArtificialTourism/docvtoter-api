@@ -12,7 +12,7 @@ class TagsMapper extends PHPFrame_Mapper
         $table = $id_obj->getTableName();
         
         $id_obj->select($table.".*")
-        ->join('JOIN tagscard t ON t.tag_id = '.$table.'.id')
+        ->join('JOIN cardtags t ON t.tag_id = '.$table.'.id')
         ->where("t.card_id", "=", ":card")
         ->params(":card",$card);
         if(isset($type) && !empty($type)) {
@@ -41,7 +41,7 @@ class TagsMapper extends PHPFrame_Mapper
         $table = $id_obj->getTableName();
         
         $id_obj->select($table.".*")
-        ->join('JOIN tagscard t ON t.tag_id = '.$table.'.id')
+        ->join('JOIN cardtags t ON t.tag_id = '.$table.'.id')
         ->where("t.owner", "=", ":user")
         ->params(":user",$user);
         if(isset($type) && !empty($type)) {

@@ -1,5 +1,5 @@
 <?php
-class Tagscard extends PHPFrame_PersistentObject
+class Cardtags extends PHPFrame_PersistentObject
 {
 	
     public function __construct(array $options=null)

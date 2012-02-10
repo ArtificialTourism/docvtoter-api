@@ -2,7 +2,7 @@
 class Card extends PHPFrame_PolymorphicPersistentObject
 {
 
-    public $owner_user;
+    public $owner_user, $event_category_id;
 
     public function __construct(array $options=null)
     {
@@ -100,5 +100,13 @@ class Card extends PHPFrame_PolymorphicPersistentObject
 
         return $this->owner_user;
     }
+    
+    public function eventCategoryId($event_category_id=null)
+    {
+        if (!is_null($event_category_id)) {
+            $this->event_category_id = $event_category_id;
+        }
 
+        return $this->event_category_id;
+    }
 }

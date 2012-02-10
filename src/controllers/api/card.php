@@ -25,7 +25,7 @@
  */
 class CardApiController extends PHPFrame_RESTfulController
 {
-    private $_mapper;
+    private $_mapper, $_event_mapper;
 
     /**
      * Constructor.
@@ -62,10 +62,14 @@ class CardApiController extends PHPFrame_RESTfulController
      * @since  1.0
      */
     public function get($id=null, $limit=10, $page=1, $tag_id=null,
-        $tag_user=null, $owner=null, $include_owner=0)
+        $tag_user=null, $owner=null, $include_owner=0, $event_id=null)
     {
         if (empty($id)) {
             $id = null;
+        }
+        
+        if (empty($event_id)) {
+            $event_id = null;
         }
 
         if (empty($limit)) {
@@ -92,6 +96,10 @@ class CardApiController extends PHPFrame_RESTfulController
             $this->_getMapper()->include_owner_object(true);
         }
 
+        if(isset($event_id) && $event_id) {
+        	$this->_getMapper()->context_event($event_id);
+        }
+        
         if (isset($id)) {
             $ret = $this->_fetchCard($id);
         } elseif(isset($tag_id)) {
@@ -105,6 +113,7 @@ class CardApiController extends PHPFrame_RESTfulController
         }
 
         $this->_getMapper()->include_owner_object(false);
+        $this->_getMapper()->context_event(false);
 
         return $this->handleReturnValue($ret);
     }
@@ -159,7 +168,7 @@ class CardApiController extends PHPFrame_RESTfulController
     }
     
     public function put($id, $name=null, $safe_name=null, $category_id=null,
-        $type=null, $topic_id=null, $question=null, $factoid=null, $description=null,
+        $type=null, $topic_id=null, $question=null, $Cardfactoid=null, $description=null,
         $image=null, $card_front=null, $card_back=null, $origin_event_id=null,
         $uri=null, $params=null, $owner=null
     )
@@ -249,5 +258,20 @@ class CardApiController extends PHPFrame_RESTfulController
         }
 
         return $this->_mapper;
+    }
+    
+    /**
+     * Get instance of EventMapper.
+     *
+     * @return EventMapper
+     * @since  1.0
+     */
+    private function _getEventMapper()
+    {
+        if (is_null($this->_event_mapper)) {
+            $this->_event_mapper = new EventMapper($this->db());
+        }
+
+        return $this->_event_mapper;
     }
 }

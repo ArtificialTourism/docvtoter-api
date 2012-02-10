@@ -124,7 +124,7 @@ class CardtagsApiController extends PHPFrame_RESTfulController
         
         //create cardtag
         if(!$cardtag || $cardtag->id() == 0) {
-	        $cardtag = new Tagscard();
+	        $cardtag = new Cardtags();
 	        $cardtag->card_id($card_id);
 	        $cardtag->tag_id($tag_id);
 	        if(isset($owner)) $cardtag->owner($owner);
@@ -175,7 +175,7 @@ class CardtagsApiController extends PHPFrame_RESTfulController
     private function _getMapper()
     {
         if (is_null($this->_mapper)) {
-            $this->_mapper = new PHPFrame_Mapper('tagscard',$this->db());
+            $this->_mapper = new PHPFrame_Mapper('cardtags',$this->db());
         }
 
         return $this->_mapper;

@@ -11,6 +11,18 @@ class Event extends PHPFrame_PersistentObject
             new PHPFrame_StringFilter(array("max_length"=>100))
         );
         $this->addField(
+            "safe_name",
+            null,
+            false,
+            new PHPFrame_StringFilter(array("max_length"=>100))
+        );
+        $this->addField(
+            "collection_id",
+            1,
+            false,
+            new PHPFrame_IntFilter()
+        );
+        $this->addField(
             "description",
             null,
             true,

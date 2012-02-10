@@ -1,25 +1,19 @@
 <?php
-class Eventcards extends PHPFrame_PersistentObject
+class Collectiontags extends PHPFrame_PersistentObject
 {
 	
     public function __construct(array $options=null)
     {
+        $this->addField(
+            "collection_id",
+            null,
+            false,
+            new PHPFrame_IntFilter()
+        );
     	$this->addField(
-            "event_id",
+            "tag_id",
             null,
             false,
-            new PHPFrame_IntFilter()
-        );
-        $this->addField(
-            "card_id",
-            null,
-            false,
-            new PHPFrame_IntFilter()
-        );
-        $this->addField(
-            "category_tag_id",
-            null,
-            true,
             new PHPFrame_IntFilter()
         );
         
