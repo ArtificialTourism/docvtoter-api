@@ -19,7 +19,7 @@ class Card extends PHPFrame_PolymorphicPersistentObject
             new PHPFrame_StringFilter(array("max_length"=>50))
         );
         $this->addField(
-            "category_tag_id",
+            "category_id",
             null,
             false,
             new PHPFrame_IntFilter()
