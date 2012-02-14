@@ -168,7 +168,7 @@ class CardApiController extends PHPFrame_RESTfulController
     }
     
     public function put($id, $name=null, $safe_name=null, $category_id=null,
-        $type=null, $topic_id=null, $question=null, $Cardfactoid=null, $description=null,
+        $type=null, $topic_id=null, $question=null, $factoid=null, $description=null,
         $image=null, $card_front=null, $card_back=null, $origin_event_id=null,
         $uri=null, $params=null, $owner=null
     )
