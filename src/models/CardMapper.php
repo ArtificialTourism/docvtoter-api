@@ -4,6 +4,7 @@ class CardMapper extends PHPFrame_Mapper
     private $_include_owner = false;
     private $_event_id = false;
     private $_user_mapper, $_eventcard_mapper;
+    private $_db;
 
 	public function __construct(PHPFrame_Database $db)
     {
@@ -11,6 +12,8 @@ class CardMapper extends PHPFrame_Mapper
 
         $this->_user_mapper = new UserMapper($db);
         $this->_eventcard_mapper = new PHPFrame_Mapper('eventcards',$db);
+        
+        $this->_db = $db;
     }
     
     public function find(PHPFrame_IdObject $id_obj=null)
@@ -25,12 +28,12 @@ class CardMapper extends PHPFrame_Mapper
         	$card_category = array();
             //event_card id_obj:        	
             $ec_id_obj = $this->_eventcard_mapper->getIdObject();
-            $ec_id_obj->where("event_id","=",":event_id")
-            ->params(":event_id",$this->_event_id);
+            $ec_id_obj->where("event_id","=",":event_id");
+            $params = array(":event_id"=>$this->_event_id);
             //get sql
             $sql = $ec_id_obj->getSQL();
             //fetch assoc array
-            $assocList = $db->fetchAssocList($sql);
+            $assocList = $this->_db->fetchAssocList($sql, $params);
             
             foreach($assocList as $eventcard) {
             	$card_category[$eventcard['card_id']] = $eventcard['category_tag_id']; 
@@ -45,8 +48,8 @@ class CardMapper extends PHPFrame_Mapper
         	}
             
         	if ($this->_event_id) {
-        		if(isset($card_category[$card_id]) && !empty($card_category[$card_id]))
-        		  $card->eventCategoryId($card_category[$card_id]);
+        		if(isset($card_category[$card->id()]) && !empty($card_category[$card->id()]))
+        		  $card->eventCategoryId($card_category[$card->id()]);
         	}
             $card->eventCategoryId($card->category_tag_id);
         }

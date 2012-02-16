@@ -53,7 +53,8 @@ class EventApiController extends PHPFrame_RESTfulController
      * @return object      an event object.
      * @since  1.0
      */
-    public function get($id = null, $user = null, $owner = null)
+    public function get($id=null, $user=null, $owner=null,
+        $include_owner = 0, $include_card_count = 0)
     {
         if (empty($id)) {
             $id = null;
@@ -67,10 +68,12 @@ class EventApiController extends PHPFrame_RESTfulController
             $owner = null;
         }
         
-        if((!isset($id) || empty($id)) && (!isset($user) || empty($user))
-           && (!isset($owner) || empty($owner))) {
-        	$this->response()->statusCode(PHPFrame_Response::STATUS_BAD_REQUEST);
-            return;
+        if ($include_owner == 1) {
+            $this->_getMapper()->include_owner_object(true);
+        }
+        
+        if ($include_card_count == 1) {
+            $this->_getMapper()->include_card_count(true);
         }
         
         if(isset($id)) {
@@ -92,6 +95,16 @@ class EventApiController extends PHPFrame_RESTfulController
                 return;
             }
         }
+        
+        if(!isset($user) && !isset($id)) {
+        	$ret = $this->_getMapper()->find();
+        	
+            if(!isset($ret))
+            {
+                $this->response()->statusCode(PHPFrame_Response::STATUS_NOT_FOUND);
+                return;
+            }
+        }
 
         if (isset($owner)) {
             $ret = $this->_getMapper()->findByOwner($owner);
@@ -102,6 +115,9 @@ class EventApiController extends PHPFrame_RESTfulController
                 return;
             }
         }
+        
+        $this->_getMapper()->include_owner_object(false);
+        $this->_getMapper()->include_card_count(false);
 
         //return found event
         return $this->handleReturnValue($ret);
