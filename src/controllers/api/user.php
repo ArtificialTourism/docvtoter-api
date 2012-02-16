@@ -107,16 +107,18 @@ class UserApiController extends PHPFrame_RESTfulController
             if(!isset($user) || $user->id() == 0)
             {
                 $this->response()->statusCode(PHPFrame_Response::STATUS_NOT_FOUND);
-                $this->response()->body("Bad Username");
-                return;
+//                $this->response()->body("Bad Username");
+//                return;
+                return $this->handleReturnValue("Bad Username");
             }
 
             //check password match
             if(!$this->_passwords_match($password, $user->password()))
             {
                 $this->response()->statusCode(PHPFrame_Response::STATUS_NOT_FOUND);
-                $this->response()->body("Bad Username and Password combination");
-                return;
+//                $this->response()->body("Bad Username and Password combination");
+//                return;
+                return $this->handleReturnValue("Bad Username and Password combination");
             }
         }
 

@@ -61,11 +61,6 @@ class DeckApiController extends PHPFrame_RESTfulController
             $owner = null;
         }
 
-        if (!isset($id) && !isset($owner)) {
-            $this->response()->statusCode(PHPFrame_Response::STATUS_BAD_REQUEST);
-            return;
-        }
-
         if (!is_null($id)) {
             $ret = $this->_fetchDeck($id);
             
@@ -73,15 +68,15 @@ class DeckApiController extends PHPFrame_RESTfulController
                 $this->response()->statusCode(PHPFrame_Response::STATUS_NOT_FOUND);
                 return;
             }
-            
-            return $this->handleReturnValue($ret);
+        } else {
+        	$ret = $this->_getDeckMapper()->find();
         }
 
         if (!is_null($owner)) {
             $ret = $this->_getDeckMapper()->findByOwner($owner);
-
-            return $this->handleReturnValue($ret);
         }
+        
+        return $this->handleReturnValue($ret);
     }
     
     public function post($name, $description=null, $id=null, $owner=null)
