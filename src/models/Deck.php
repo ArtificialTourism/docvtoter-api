@@ -2,6 +2,7 @@
 class Deck extends PHPFrame_PersistentObject implements PHPFrame_RESTfulObject
 {
 	private $_cards;
+	public $card_count;
 	
     public function __construct(array $options=null)
     {
@@ -45,5 +46,14 @@ class Deck extends PHPFrame_PersistentObject implements PHPFrame_RESTfulObject
     	$restful['cards'] = $card_array;
 //var_dump($restful);exit;
     	return $restful;
+    }
+    
+    public function cardCount($count=null)
+    {
+        if (!is_null($count)) {
+            $this->card_count = $count;
+        }
+
+        return $this->card_count;
     }
 }

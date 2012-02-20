@@ -51,7 +51,7 @@ class DeckApiController extends PHPFrame_RESTfulController
      *                      deck objects.
      * @since  1.0
      */
-    public function get($id=null, $owner=null)
+    public function get($id=null, $owner=null, $include_card_count=0)
     {
         if (empty($id)) {
             $id = null;
@@ -59,6 +59,10 @@ class DeckApiController extends PHPFrame_RESTfulController
 
         if (empty($owner)) {
             $owner = null;
+        }
+        
+        if ($include_card_count == 1) {
+            $this->_getDeckMapper()->include_card_count(true);
         }
 
         if (!is_null($id)) {
@@ -75,6 +79,8 @@ class DeckApiController extends PHPFrame_RESTfulController
         if (!is_null($owner)) {
             $ret = $this->_getDeckMapper()->findByOwner($owner);
         }
+        
+        $this->_getDeckMapper()->include_card_count(false);
         
         return $this->handleReturnValue($ret);
     }

@@ -53,7 +53,7 @@ class EventApiController extends PHPFrame_RESTfulController
      * @return object      an event object.
      * @since  1.0
      */
-    public function get($id=null, $user=null, $owner=null,
+    public function get($id=null, $user=null, $owner=null, $type=null,
         $include_owner = 0, $include_card_count = 0)
     {
         if (empty($id)) {
@@ -68,6 +68,10 @@ class EventApiController extends PHPFrame_RESTfulController
             $owner = null;
         }
         
+        if (empty($type)) {
+            $type = null;
+        }
+        
         if ($include_owner == 1) {
             $this->_getMapper()->include_owner_object(true);
         }
@@ -77,7 +81,19 @@ class EventApiController extends PHPFrame_RESTfulController
         }
         
         if(isset($id)) {
-            $ret = $this->_getMapper()->findOne(intval($id));	
+        	$id_obj = $this->_getMapper()->getIdObject();
+            $table = $id_obj->getTableName();
+                    	
+        	$id_obj->where("$table.id","=",":id")
+        	->params(":id",$id);
+        	
+        	if(isset($type)) {
+        		$id_obj->join('JOIN #__eventeventtype e ON e.event_id = '.$table.'.id')
+        		->where("e.type_id","=",":type_id")
+        		->params(":type_id",$type);
+        	}
+        	
+        	$ret = $this->_getMapper()->findOne($id_obj);
 
             if(!isset($ret) || $ret->id() == 0)
             {
@@ -87,7 +103,16 @@ class EventApiController extends PHPFrame_RESTfulController
         }
         
         if(isset($user)) {
-        	$ret = $this->_getMapper()->findByUser($user);
+            $id_obj = $this->_getMapper()->getIdObject();
+            
+            if(isset($type)) {
+            	$table = $id_obj->getTableName();
+                $id_obj->join('JOIN #__eventeventtype e ON e.event_id = '.$table.'.id')
+                ->where("e.type_id","=",":type_id")
+                ->params(":type_id",$type);
+            }
+        	
+        	$ret = $this->_getMapper()->findByUser($user, $id_obj);
         	
             if(!isset($ret))
             {
@@ -97,7 +122,17 @@ class EventApiController extends PHPFrame_RESTfulController
         }
         
         if(!isset($user) && !isset($id)) {
-        	$ret = $this->_getMapper()->find();
+        	
+            $id_obj = $this->_getMapper()->getIdObject();
+            
+            if(isset($type)) {
+            	$table = $id_obj->getTableName();
+                $id_obj->join('JOIN #__eventeventtype e ON e.event_id = '.$table.'.id')
+                ->where("e.type_id","=",":type_id")
+                ->params(":type_id",$type);
+            }
+            
+        	$ret = $this->_getMapper()->find($id_obj);
         	
             if(!isset($ret))
             {
@@ -107,7 +142,17 @@ class EventApiController extends PHPFrame_RESTfulController
         }
 
         if (isset($owner)) {
-            $ret = $this->_getMapper()->findByOwner($owner);
+        	
+            $id_obj = $this->_getMapper()->getIdObject();
+            
+            if(isset($type)) {
+            	$table = $id_obj->getTableName();
+                $id_obj->join('JOIN #__eventeventtype e ON e.event_id = '.$table.'.id')
+                ->where("e.type_id","=",":type_id")
+                ->params(":type_id",$type);
+            }
+        	
+            $ret = $this->_getMapper()->findByOwner($owner, $id_obj);
             
             if(!isset($ret))
             {
@@ -124,8 +169,8 @@ class EventApiController extends PHPFrame_RESTfulController
     }
     
     public function post($name, $start, $description=null, $summary=null, $end=null,
-        $location_id=null, $allow_anon=null, $auto_publish=null, $auto_close=null,
-        $owner=null, $private=null, $password=null
+        $location_id=null, $initial_deck_id=null, $allow_anon=null, $auto_publish=null,
+        $auto_close=null, $owner=null, $private=null, $password=null
     ) 
     {
         if (empty($name)) {
@@ -148,6 +193,7 @@ class EventApiController extends PHPFrame_RESTfulController
         	if(isset($summary)) $event->summary($summary);
         	if(isset($end)) $event->end($end);
         	if(isset($location_id)) $event->location_id($location_id);
+        	if(isset($initial_deck_id)) $event->initial_deck_id($initial_deck_id);
         	if(isset($allow_anon)) $event->allow_anon($allow_anon);
         	if(isset($auto_publish)) $event->auto_publish($auto_publish);
         	if(isset($auto_close)) $event->auto_close($auto_close);
@@ -167,8 +213,8 @@ class EventApiController extends PHPFrame_RESTfulController
     }
     
     public function put($id, $name=null, $description=null, $summary=null, $start=null,
-        $end=null, $location_id=null, $allow_anon=null, $auto_publish=null,
-        $auto_close=null, $private=null, $password=null, $owner=null)
+        $end=null, $location_id=null, $initial_deck_id=null, $allow_anon=null,
+        $auto_publish=null, $auto_close=null, $private=null, $password=null, $owner=null)
     {
         if (empty($id)) {
             $id = null;
@@ -192,6 +238,7 @@ class EventApiController extends PHPFrame_RESTfulController
             if (isset($start)) $event->start($start);
             if(isset($end)) $event->end($end);
             if(isset($location_id)) $event->location_id($location_id);
+            if(isset($initial_deck_id)) $event->initial_deck_id($initial_deck_id);
             if(isset($allow_anon)) $event->allow_anon($allow_anon);
             if(isset($auto_publish)) $event->auto_publish($auto_publish);
             if(isset($auto_close)) $event->auto_close($auto_close);

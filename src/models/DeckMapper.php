@@ -1,9 +1,16 @@
 <?php
 class DeckMapper extends PHPFrame_Mapper
 {
+	private $_include_card_count = false;
+	private $_deckcard_mapper;
+	private $_db;
+	
 	public function __construct(PHPFrame_Database $db)
     {
         parent::__construct("Deck", $db, "#__deck");
+        
+        $this->_deckcard_mapper = new PHPFrame_Mapper('deckcards',$db);
+        $this->_db = $db;
     }
     
     public function find(PHPFrame_IdObject $id_obj=null)
@@ -16,6 +23,17 @@ class DeckMapper extends PHPFrame_Mapper
         	foreach($cards as $card) {
         		$deck->addCard($card);
         	}
+        	
+            if ($this->_include_card_count && $deck->id()) {
+                $id_obj = $this->_deckcard_mapper->getIdObject();
+                $id_obj->select("COUNT(*)")
+                ->where("deck_id","=",":deck_id");
+                $params = array(":deck_id"=>$deck->id());
+                $sql = $id_obj->getSQL();
+                $assoc = $this->_db->fetchAssoc($sql, $params);
+                $count = $assoc['COUNT(*)'];
+                $deck->cardCount($count);
+            }
         }       
         return $collection;
     }
@@ -41,5 +59,10 @@ class DeckMapper extends PHPFrame_Mapper
             ->params(':owner', $owner);
 
         return $this->find($id_obj);
+    }
+    
+    public function include_card_count($include_card_count=false)
+    {
+        $this->_include_card_count = $include_card_count;
     }
 }

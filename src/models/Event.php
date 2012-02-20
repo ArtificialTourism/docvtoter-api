@@ -49,6 +49,12 @@ class Event extends PHPFrame_PersistentObject
             new PHPFrame_IntFilter()
         );
         $this->addField(
+            "initial_deck_id",
+            null,
+            true,
+            new PHPFrame_IntFilter()
+        );
+        $this->addField(
             "location_id",
             null,
             true,

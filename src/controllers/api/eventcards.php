@@ -25,7 +25,7 @@
  */
 class EventcardsApiController extends PHPFrame_RESTfulController
 {
-    private $_mapper, $_eventcards_mapper;
+    private $_mapper, $_eventcards_mapper, $_deck_mapper;
 
     /**
      * Constructor.
@@ -66,7 +66,7 @@ class EventcardsApiController extends PHPFrame_RESTfulController
         }
     }
     
-    public function post($event_id, $card_id)
+    public function post($event_id, $card_id=null, $deck_id=null)
     {
         if (empty($event_id)) {
             $event_id = null;
@@ -76,13 +76,17 @@ class EventcardsApiController extends PHPFrame_RESTfulController
             $card_id = null;
         }
         
-        //verify existence of event and card
-        $card = $this->_getCardMapper()->findOne(intval($card_id));
-        $card = isset($card) && $card->id() != 0;
-        if(!$card) {
-            $this->response()->statusCode(PHPFrame_Response::STATUS_NOT_FOUND);
+        if (empty($deck_id)) {
+            $deck_id = null;
+        }
+        
+        //verify valid request
+        if(!isset($card_id) && !isset($deck_id)) {
+        	$this->response()->statusCode(PHPFrame_Response::STATUS_BAD_REQUEST);
             return;
         }
+        
+        //verify existence of event and card
         $event = new PHPFrame_Mapper('event',$this->db());
         $event = $event->findOne(intval($event_id));
         $event = isset($event) && $event->id() != 0;
@@ -92,27 +96,64 @@ class EventcardsApiController extends PHPFrame_RESTfulController
         }
 
         $db = $this->db();
-        $params = array(":event_id"=>$event_id, ":card_id"=>$card_id);
+        if(isset($card_id)) {
+	        $card = $this->_getCardMapper()->findOne(intval($card_id));
+	        $card = isset($card) && $card->id() != 0;
+	        if(!$card) {
+	            $this->response()->statusCode(PHPFrame_Response::STATUS_NOT_FOUND);
+	            return;
+	        }
+	        
+	        $params = array(":event_id"=>$event_id, ":card_id"=>$card_id);
         
-        //check for existing/duplicate entry
-        $id_obj = $this->_getMapper()->getIdObject();
-        $id_obj->where('event_id','=',':event_id')
-        ->where('card_id','=',':card_id')
-        ->params(':event_id',$event_id)
-        ->params(':card_id',$card_id);
-        $eventcard = $this->_getMapper()->findOne($id_obj);
+	        //check for existing/duplicate entry
+	        $id_obj = $this->_getMapper()->getIdObject();
+	        $id_obj->where('event_id','=',':event_id')
+	        ->where('card_id','=',':card_id')
+	        ->params(':event_id',$event_id)
+	        ->params(':card_id',$card_id);
+	        $eventcard = $this->_getMapper()->findOne($id_obj);
+	        
+	        if(isset($eventcard) && $eventcard->id() > 0)
+	        {
+	            return $this->handleReturnValue($eventcard);
+	        }
+	        
+	        $eventcard = new Eventcards();
+	        $eventcard->event_id($event_id);
+	        $eventcard->card_id($card_id);  
+	        $this->_getMapper()->insert($eventcard);
+	
+	        return $this->handleReturnValue($eventcard);
+        } else {
+            $deck = $this->_getDeckMapper()->findOne(intval($deck_id));
+            if(!isset($deck) || !$deck->id()) {
+                $this->response()->statusCode(PHPFrame_Response::STATUS_NOT_FOUND);
+                return;
+            }
+            
+            foreach($deck->cards() as $card) {
+            	$params = array(":event_id"=>$event_id, ":card_id"=>$card->id());
         
-        if(isset($eventcard) && $eventcard->id() > 0)
-        {
-            return $this->handleReturnValue($eventcard);
+	            //check for existing/duplicate entry
+	            $id_obj = $this->_getMapper()->getIdObject();
+	            $id_obj->where('event_id','=',':event_id')
+	            ->where('card_id','=',':card_id')
+	            ->params(':event_id',$event_id)
+	            ->params(':card_id',$card_id);
+	            $eventcard = $this->_getMapper()->findOne($id_obj);
+	            
+	            if(isset($eventcard) && $eventcard->id() > 0)
+	            {
+	                return $this->handleReturnValue($eventcard);
+	            }
+	            
+	            $eventcard = new Eventcards();
+	            $eventcard->event_id($event_id);
+	            $eventcard->card_id($card->id());  
+	            $this->_getMapper()->insert($eventcard);
+            }
         }
-        
-        $eventcard = new Eventcards();
-        $eventcard->event_id($event_id);
-        $eventcard->card_id($card_id);  
-        $this->_getMapper()->insert($eventcard);
-
-        return $this->handleReturnValue($eventcard);
     }
     
     public function delete($event_id, $card_id)
@@ -164,6 +205,21 @@ class EventcardsApiController extends PHPFrame_RESTfulController
         }
 
         return $this->_mapper;
+    }
+    
+    /**
+     * Get instance of DeckMapper.
+     *
+     * @return DeckMapper
+     * @since  1.0
+     */
+    private function _getDeckMapper()
+    {
+        if (is_null($this->_deck_mapper)) {
+            $this->_deck_mapper = new DeckMapper( $this->db());
+        }
+
+        return $this->_deck_mapper;
     }
     
     /**

@@ -70,9 +70,11 @@ class EventMapper extends PHPFrame_Mapper
         return $event;
     }
     
-    public function findByUser($user)
+    public function findByUser($user, $id_obj=null)
     {
-        $id_obj = $this->getIdObject();
+    	if(!isset($id_obj)) {
+    		$id_obj = $this->getIdObject();
+    	}
         $table = $id_obj->getTableName();
         
         $id_obj->select($table.".*")
@@ -82,9 +84,11 @@ class EventMapper extends PHPFrame_Mapper
         return $this->find($id_obj);
     }
 
-    public function findByOwner($owner)
+    public function findByOwner($owner, $id_obj=null)
     {
-        $id_obj = $this->getIdObject();
+    	if(!isset($id_obj)) {
+    		$id_obj = $this->getIdObject(); 
+    	}
         $id_obj->where('owner', '=', ':owner')
             ->params(':owner', $owner);
         return $this->find($id_obj);
