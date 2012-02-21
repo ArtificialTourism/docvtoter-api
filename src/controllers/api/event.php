@@ -25,7 +25,7 @@
  */
 class EventApiController extends PHPFrame_RESTfulController
 {
-    private $_mapper;
+    private $_mapper, $_eventeventtype_mapper;
 
     /**
      * Constructor.
@@ -170,7 +170,7 @@ class EventApiController extends PHPFrame_RESTfulController
     
     public function post($name, $start, $description=null, $summary=null, $end=null,
         $location_id=null, $initial_deck_id=null, $allow_anon=null, $auto_publish=null,
-        $auto_close=null, $owner=null, $private=null, $password=null
+        $auto_close=null, $owner=null, $private=null, $password=null, $eventtype=null
     ) 
     {
         if (empty($name)) {
@@ -201,7 +201,25 @@ class EventApiController extends PHPFrame_RESTfulController
         	if(isset($password)) $event->password($password);
         	if(isset($owner)) $event->owner($owner);
         	
-        	$this->_getMapper()->insert($event);
+        	$event = $this->_getMapper()->insert($event);
+
+        	if(isset($eventtype)) {
+	        	//check duplicate eventtype entries
+	        	$id_obj = $this->_getEventeventtypeMapper()->getIdObject();
+	            $id_obj->where('type_id','=',':type_id')
+	            ->where('event_id','=',':event_id')
+	            ->params(':type_id',$eventtype)
+	            ->params(':event_id',$event->id());
+	            $eventeventtype = $this->_getCardtagsMapper()->findOne($id_obj);
+	        
+	            //create cardtag for category
+	            if(!$eventeventtype || $eventeventtype->id() == 0) {
+	            	$eventeventtype = new Eventeventtype();
+	            	$eventeventtype->type_id($eventtype);
+	            	$eventeventtype->event_id($event->id());
+	                $this->_getEventeventtypeMapper()->insert($eventeventtype);
+	            }
+        	}
         }
         
         if(!isset($event)) {
@@ -292,5 +310,14 @@ class EventApiController extends PHPFrame_RESTfulController
         }
 
         return $this->_mapper;
+    }
+    
+    private function _getEventeventtypeMapper()
+    {
+        if (is_null($this->_eventeventtype_mapper)) {
+            $this->_eventeventtype_mapper = new PHPFrame_Mapper('eventeventtype',$this->db());
+        }
+
+        return $this->_eventeventtype_mapper;
     }
 }
