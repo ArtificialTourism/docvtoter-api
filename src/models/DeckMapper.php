@@ -19,7 +19,7 @@ class DeckMapper extends PHPFrame_Mapper
 
         $cardMapper = new CardMapper($this->getFactory()->getDB());
         foreach ($collection as $deck){
-        	$cards = $cardMapper->findByDeckId($deck->id());
+        	$cards = $cardMapper->findBy(array("deck_id"=>$deck->id()));
         	foreach($cards as $card) {
         		$deck->addCard($card);
         	}
