@@ -92,18 +92,25 @@ class CardMapper extends PHPFrame_Mapper
             ->params(":event_id",$event_id);
         }
         if(isset($owner)) {
-        	$id_obj->where($table.'owner', '=', ':owner')
+        	$id_obj->where($table.'.owner', '=', ':owner')
             ->params(':owner', $owner);
         }
         if(isset($category_tag_id)) {
         	if(!$this->_event_id && !isset($event_id)) {
         	   	$category_id = $category_tag_id;
         	} else {
-        	   //TODO: DATA MATCH CATEGORY TAGS TO EVENT COLLECTION
                //get event collection
+               $event = $this->_event_mapper->findone($event_id);
+               if(!isset($event) || !$event->id()) {
+                   return null;
+               }
+               $collection_id = $event->collection_id();
                //join collectiontags
-//TODO: eventcards must record category_tag_id               
-               //join         	   
+               $id_obj->join('JOIN #__collectiontags ct ON ct.card_id = '.$table.'.id')
+               ->where("ct.category_tag_id","=",":category_tag_id")
+               ->where("ct.collection_id","=",":collection_id")
+               ->params(":category_tag_id",$category_tag_id)
+               ->params(":collection_id",$collection_id);
         	}
         }
         if(isset($category_id)) {
