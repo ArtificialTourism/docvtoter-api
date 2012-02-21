@@ -188,10 +188,10 @@ class EventApiController extends PHPFrame_RESTfulController
         if(isset($name) && isset($start)) {
         	$event = new Event();
         	$event->name($name);
-        	$event->start($start);
+        	$event->start(intval($start));
         	if(isset($description)) $event->description($description);
         	if(isset($summary)) $event->summary($summary);
-        	if(isset($end)) $event->end($end);
+        	if(isset($end)) $event->end(intval($end));
         	if(isset($location_id)) $event->location_id($location_id);
         	if(isset($initial_deck_id)) $event->initial_deck_id($initial_deck_id);
         	if(isset($allow_anon)) $event->allow_anon($allow_anon);
