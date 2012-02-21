@@ -48,15 +48,20 @@ class EventcardsApiController extends PHPFrame_RESTfulController
      * @return array             an array of card objects.
      * @since  1.0
      */
-    public function get($event_id, $card_id=null)
+    public function get($event_id, $collection_id=null)
     {
         if (empty($event_id)) {
             $event_id = null;
         }
+
+        if (empty($collection_id)) {
+            $collection_id = null;
+        }
         
         if (!is_null($event_id)) {
+        	$this->_getCardMapper()->context_event($event_id);
             $ret = $this->_getCardMapper()->findByEventId($event_id);
-            
+            $this->_getCardMapper()->context_event(false);
             if(!isset($ret)) {
                 $this->response()->statusCode(PHPFrame_Response::STATUS_NOT_FOUND);
                 return;

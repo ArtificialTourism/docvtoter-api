@@ -38,7 +38,6 @@ class CardMapper extends PHPFrame_Mapper
             foreach($assocList as $eventcard) {
             	$card_category[$eventcard['card_id']] = $eventcard['category_tag_id']; 
             }
-            
         }
 
         foreach ($collection as $card) {
@@ -47,6 +46,8 @@ class CardMapper extends PHPFrame_Mapper
                 $card->ownerUser($owner);
         	}
             
+        	$card->eventCategoryId($card->category_id());
+        	
         	if ($this->_event_id) {
         		if(isset($card_category[$card->id()]) && !empty($card_category[$card->id()]))
         		  $card->eventCategoryId($card_category[$card->id()]);
@@ -59,45 +60,98 @@ class CardMapper extends PHPFrame_Mapper
 
     public function findOne($id_obj)
     {
-        $card = parent:: findOne($id_obj);
-
-        if($card && $card->id()) {
-	        if ($this->_include_owner) {
-	            $owner = $this->_user_mapper->findOne($card->owner());
-	            $card->ownerUser($owner);
-	        }
-        
-            $card->eventCategoryId($card->category_id());
+        if (is_int($id_obj)){
+            $id = $id_obj;
+            $id_obj = $this->getIdObject();
+            $id_obj->where('id', '=', ':id')
+                ->params(':id', $id);
         }
+        $collection = $this->find($id_obj);
+        $collection->rewind();
         
-        return $card;
-    }
-
-    public function findByDeckId($deck_id)
-    {
-        $id_obj = $this->getIdObject();
-        $table = $id_obj->getTableName();
-        $id_obj->select($table.".*")
-        ->join('JOIN deckcards d ON d.card_id = '.$table.'.id')
-        ->where("d.deck_id", "=", ":deck_id")
-        ->where("status", "=", "'active'")
-        ->params(":deck_id",$deck_id);
-        return $this->find($id_obj);
+        return $collection->current();
     }
     
-    public function findByEventId($event_id)
+    public function findBy($params)
     {
-    	$event_id = intval($event_id);
-        $id_obj = $this->getIdObject();
+    	parse_str(http_build_query($params));
+    	
+    	$id_obj = $this->getIdObject();
         $table = $id_obj->getTableName();
-        $id_obj->select($table.".*")
-        ->join('JOIN #__eventcards e ON e.card_id = '.$table.'.id')
-        ->where("e.event_id", "=", ":event_id")
-        ->params(":event_id",$event_id);
-        $ret = $this->find($id_obj);
+        $id_obj->select($table.".*");
+        $id_obj->where("status", "=", "'active'");
+        if(isset($deck_id)) {
+            $id_obj->join('JOIN #__deckcards d ON d.card_id = '.$table.'.id')
+	        ->where("d.deck_id", "=", ":deck_id")
+	        ->params(":deck_id",$deck_id);	
+        }
+        if(isset($event_id)) {
+        	$this->_event_id = $event_id;
+        	$id_obj->join('JOIN #__eventcards e ON e.card_id = '.$table.'.id')
+            ->where("e.event_id", "=", ":event_id")
+            ->params(":event_id",$event_id);
+        }
+        if(isset($owner)) {
+        	$id_obj->where($table.'owner', '=', ':owner')
+            ->params(':owner', $owner);
+        }
+        if(isset($category_tag_id)) {
+        	if(!$this->_event_id && !isset($event_id)) {
+        	   	$category_id = $category_tag_id;
+        	} else {
+        	   //TODO: DATA MATCH CATEGORY TAGS TO EVENT COLLECTION
+               //get event collection
+               //join collectiontags
+//TODO: eventcards must record category_tag_id               
+               //join         	   
+        	}
+        }
+        if(isset($category_id)) {
+            $id_obj->where($table.'category_id', '=', ':category_id')
+            ->params(':category_id', $category_id);
+        }
+        if(isset($tag_id)) {
+	        $id_obj->join('JOIN cardtags t ON t.card_id = '.$table.'.id')
+	        ->where("t.tag_id", "=", ":tag_id")
+	        ->params(":tag_id",$tag_id);
+	        if(isset($tag_user) && !empty($tag_user)) {
+	            $id_obj->where("t.owner","=",":tag_user")
+	            ->params(":tag_user",$tag_user);
+	        }
+        }
 
-        return $ret; 
+        $ret = $this->find($id_obj);
+        //reset
+        $this->_event_id = false;
+        
+        return $ret;
     }
+
+//    public function findByDeckId($deck_id)
+//    {
+//        $id_obj = $this->getIdObject();
+//        $table = $id_obj->getTableName();
+//        $id_obj->select($table.".*")
+//        ->join('JOIN deckcards d ON d.card_id = '.$table.'.id')
+//        ->where("d.deck_id", "=", ":deck_id")
+//        ->where("status", "=", "'active'")
+//        ->params(":deck_id",$deck_id);
+//        return $this->find($id_obj);
+//    }
+//    
+//    public function findByEventId($event_id)
+//    {
+//    	$event_id = intval($event_id);
+//        $id_obj = $this->getIdObject();
+//        $table = $id_obj->getTableName();
+//        $id_obj->select($table.".*")
+//        ->join('JOIN #__eventcards e ON e.card_id = '.$table.'.id')
+//        ->where("e.event_id", "=", ":event_id")
+//        ->params(":event_id",$event_id);
+//        $ret = $this->find($id_obj);
+//
+//        return $ret; 
+//    }
     
 //    public function findByOwner($user)
 //    {
@@ -107,30 +161,30 @@ class CardMapper extends PHPFrame_Mapper
 //    {
 //    }
     
-    public function findByTag($tag, $user=null)
-    {
-    	$id_obj = $this->getIdObject();
-        $table = $id_obj->getTableName();
-        $id_obj->select($table.".*")
-        ->join('JOIN cardtags t ON t.card_id = '.$table.'.id')
-        ->where("t.tag_id", "=", ":tag_id")
-        ->where("$table.status", "=", "'active'")
-        ->params(":tag_id",$tag);
-        if(isset($user) && !empty($user)) {
-        	$id_obj->where("t.owner","=",":user")
-        	->params(":user",$user);
-        }
-        return $this->find($id_obj);
-    }
+//    public function findByTag($tag, $user=null)
+//    {
+//    	$id_obj = $this->getIdObject();
+//        $table = $id_obj->getTableName();
+//        $id_obj->select($table.".*")
+//        ->join('JOIN cardtags t ON t.card_id = '.$table.'.id')
+//        ->where("t.tag_id", "=", ":tag_id")
+//        ->where("$table.status", "=", "'active'")
+//        ->params(":tag_id",$tag);
+//        if(isset($user) && !empty($user)) {
+//        	$id_obj->where("t.owner","=",":user")
+//        	->params(":user",$user);
+//        }
+//        return $this->find($id_obj);
+//    }
 
-    public function findByOwner($owner)
-    {
-        $id_obj = $this->getIdObject();
-        $id_obj->where('owner', '=', ':owner')
-            ->params(':owner', $owner);
-
-        return $this->find($id_obj);
-    }
+//    public function findByOwner($owner)
+//    {
+//        $id_obj = $this->getIdObject();
+//        $id_obj->where('owner', '=', ':owner')
+//            ->params(':owner', $owner);
+//
+//        return $this->find($id_obj);
+//    }
 
     public function include_owner_object($include_owner=false)
     {

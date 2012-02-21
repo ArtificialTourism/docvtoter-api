@@ -46,28 +46,16 @@ class EventMapper extends PHPFrame_Mapper
     
     public function findOne($id_obj)
     {
-        $event = parent:: findOne($id_obj);
-
-        if($event && $event->id()) {
-            if ($this->_include_owner) {
-                $owner = $this->_user_mapper->findOne($event->owner());
-                $event->ownerUser($owner);
-            }
-            
-            if ($this->_include_card_count) {
-                $id_obj = $this->_eventcard_mapper->getIdObject();
-                $id_obj->select("COUNT(*)")
-                ->where("event_id","=",":event_id");
-                $params = array(":event_id"=>$event->id());             
-                $sql = $id_obj->getSQL();
-                $assoc = $this->_db->fetchAssoc($sql,$params);
-                $count = $assoc['COUNT(*)'];
-                $event->cardCount($count);
-            }
-            
+        if (is_int($id_obj)){
+            $id = $id_obj;
+            $id_obj = $this->getIdObject();
+            $id_obj->where('id', '=', ':id')
+                ->params(':id', $id);
         }
+        $collection = $this->find($id_obj);
+        $collection->rewind();
         
-        return $event;
+        return $collection->current();
     }
     
     public function findByUser($user, $id_obj=null)

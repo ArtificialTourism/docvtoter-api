@@ -31,17 +31,16 @@ class CollectionMapper extends PHPFrame_Mapper
 
     public function findOne($id_obj)
     {
-        $collection = parent:: findOne($id_obj);
-
-        $id_obj->select("#__tags.*")
-            ->join("LEFT JOIN #__collectiontags ON #__collectiontags.tag_id = #__tags.id")
-            ->join("LEFT JOIN #__collection ON #__collection.id = #__collectiontags.collection_id")
-            ->where("collection_id","=",":collection_id")
-            ->params(":collection_id",$collection->id());
-            $categories = $this->_tags_mapper->find($id_obj); 
-            $collection->categories($categories);
+        if (is_int($id_obj)){
+            $id = $id_obj;
+            $id_obj = $this->getIdObject();
+            $id_obj->where('id', '=', ':id')
+                ->params(':id', $id);
+        }
+        $collection = $this->find($id_obj);
+        $collection->rewind();
         
-        return $collection;
+        return $collection->current();
     }
 
     public function findByName($name)

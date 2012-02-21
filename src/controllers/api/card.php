@@ -25,7 +25,7 @@
  */
 class CardApiController extends PHPFrame_RESTfulController
 {
-    private $_mapper, $_event_mapper;
+    private $_mapper, $_event_mapper, $_cardtags_mapper;
 
     /**
      * Constructor.
@@ -62,54 +62,39 @@ class CardApiController extends PHPFrame_RESTfulController
      * @since  1.0
      */
     public function get($id=null, $limit=10, $page=1, $tag_id=null,
-        $tag_user=null, $owner=null, $include_owner=0, $event_id=null)
+        $tag_user=null, $owner=null, $include_owner=0, $event_id=null,
+        $category_id=null, $category_tag_id=null)
     {
-        if (empty($id)) {
-            $id = null;
-        }
-        
-        if (empty($event_id)) {
-            $event_id = null;
-        }
-
-        if (empty($limit)) {
-            $limit = 10;
-        }
-
-        if (empty($page)) {
-            $page = 1;
-        }
-        
-        if (empty($tag_id)) {
-            $tag_id = null;
-        }
-        
-        if (empty($tag_user)) {
-            $tag_user = null;
-        }
-
-        if (empty($owner)) {
-            $owner = null;
-        }
+        if (empty($id))         { $id = null; }
+        if (empty($limit))      { $limit = 10; }
+        if (empty($page))       { $page = 1; }
+        if (empty($event_id))   { $event_id = null; }
+        if (empty($category_id)) { $category_id = null; }
+        if (empty($category_tag_id)) { $category_tag_id = null; }
+        if (empty($tag_id))     { $tag_id = null; }
+        if (empty($tag_user))   { $tag_user = null; }
+        if (empty($owner))      { $owner = null; }
 
         if ($include_owner == 1) {
             $this->_getMapper()->include_owner_object(true);
         }
-
-        if(isset($event_id) && $event_id) {
+        if(isset($event_id)) {
         	$this->_getMapper()->context_event($event_id);
         }
         
         if (isset($id)) {
             $ret = $this->_fetchCard($id);
-        } elseif(isset($tag_id)) {
-        	$ret = $this->_getMapper()->findByTag($tag_id, $tag_user);
-        } elseif (isset($owner)) {
-            $ret = $this->_getMapper()->findByOwner($owner);
         } else {
-            $id_obj = $this->_getMapper()->getIdObject();
-            $id_obj->limit($limit, ($page-1)*$limit);
-            $ret = $this->_getMapper()->find($id_obj);
+            $ret = $this->_getMapper()->findBy(array(
+                "event_id"=>$event_id,
+                "tag_id"=>$tag_id,
+                "tag_user"=>$tag_user,
+                "owner"=>$owner,
+                "category_id"=>$category_id,
+                "category_tag_id"=>$category_tag_id,
+                "page"=>$page,
+                "limit"=>$limit
+            ));
         }
 
         $this->_getMapper()->include_owner_object(false);
@@ -162,7 +147,23 @@ class CardApiController extends PHPFrame_RESTfulController
             return;
         }
         
-        $this->_getMapper()->insert($card);
+        $card = $this->_getMapper()->insert($card);
+        
+        //also record category_id as tag of type steep
+        //fetch any duplicates
+        $id_obj = $this->_getCardttagsMapper()->getIdObject();
+        $id_obj->where('card_id','=',':card_id')
+        ->where('tag_id','=',':tag_id')
+        ->params(':card_id',$card->id())
+        ->params(':tag_id',$card->category_id());
+        $cardtag = $this->_getCardtagsMapper()->findOne($id_obj);
+        //create cardtag for category
+        if(!$cardtag || $cardtag->id() == 0) {
+            $cardtag = new Cardtags();
+            $cardtag->card_id($card->id());
+            $cardtag->tag_id($card->category_id());
+            $this->_getCardtagsMapper()->insert($cardtag);
+        }
         
         return $this->handleReturnValue($card);
     }
@@ -201,7 +202,23 @@ class CardApiController extends PHPFrame_RESTfulController
         if(!is_null($owner)) $card->owner($owner);
         if(!is_null($params)) $card->params($params);
         
-        $this->_getMapper()->insert($card);
+        $card = $this->_getMapper()->insert($card);
+        
+        //also record category_id as tag of type steep
+        //fetch any duplicates
+        $id_obj = $this->_getCardttagsMapper()->getIdObject();
+        $id_obj->where('card_id','=',':card_id')
+        ->where('tag_id','=',':tag_id')
+        ->params(':card_id',$card->id())
+        ->params(':tag_id',$card->category_id());
+        $cardtag = $this->_getCardtagsMapper()->findOne($id_obj);
+        //create cardtag for category
+        if(!$cardtag || $cardtag->id() == 0) {
+            $cardtag = new Cardtags();
+            $cardtag->card_id($card->id());
+            $cardtag->tag_id($card->category_id());
+            $this->_getCardtagsMapper()->insert($cardtag);
+        }
         
         return $this->handleReturnValue($card);
     }
@@ -258,6 +275,21 @@ class CardApiController extends PHPFrame_RESTfulController
         }
 
         return $this->_mapper;
+    }
+    
+    /**
+     * Get instance of CardtagsMapper.
+     *
+     * @return CardtagsMapper
+     * @since  1.0
+     */
+    private function _getCardtagsMapper()
+    {
+        if (is_null($this->_cardtags_mapper)) {
+            $this->_cardtags_mapper = new PHPFrame_Mapper('cardtags',$this->db());
+        }
+
+        return $this->_cardtags_mapper;
     }
     
     /**

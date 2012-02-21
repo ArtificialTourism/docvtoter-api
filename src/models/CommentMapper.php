@@ -27,14 +27,16 @@ class CommentMapper extends PHPFrame_Mapper
 
     public function findOne($id_obj)
     {
-        $comment = parent:: findOne($id_obj);
-
-        if ($this->_include_owner) {
-            $owner = $this->_user_mapper->findOne($comment->owner());
-            $comment->ownerUser($owner);
+        if (is_int($id_obj)){
+            $id = $id_obj;
+            $id_obj = $this->getIdObject();
+            $id_obj->where('id', '=', ':id')
+                ->params(':id', $id);
         }
+        $collection = $this->find($id_obj);
+        $collection->rewind();
         
-        return $comment;
+        return $collection->current();
     }
 
     public function findByOwner($owner)
