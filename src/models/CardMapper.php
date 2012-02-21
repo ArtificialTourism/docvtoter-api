@@ -114,7 +114,7 @@ class CardMapper extends PHPFrame_Mapper
         	}
         }
         if(isset($category_id)) {
-            $id_obj->where($table.'category_id', '=', ':category_id')
+            $id_obj->where($table.'.category_id', '=', ':category_id')
             ->params(':category_id', $category_id);
         }
         if(isset($tag_id)) {
