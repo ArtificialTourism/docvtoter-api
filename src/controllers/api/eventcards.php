@@ -71,7 +71,7 @@ class EventcardsApiController extends PHPFrame_RESTfulController
         }
     }
     
-    public function post($event_id, $card_id=null, $deck_id=null)
+    public function post($event_id, $card_id=null, $deck_id=null, $category_tag_id=null)
     {
         if (empty($event_id)) {
             $event_id = null;
@@ -79,6 +79,10 @@ class EventcardsApiController extends PHPFrame_RESTfulController
         
         if (empty($card_id)) {
             $card_id = null;
+        }
+        
+        if (empty($category_tag_id)) {
+            $category_tag_id = null;
         }
         
         if (empty($deck_id)) {
@@ -126,7 +130,8 @@ class EventcardsApiController extends PHPFrame_RESTfulController
 	        
 	        $eventcard = new Eventcards();
 	        $eventcard->event_id($event_id);
-	        $eventcard->card_id($card_id);  
+	        $eventcard->card_id($card_id); 
+	        if(isset($category_tag_id)) $eventcard->category_tag_id($category_tag_id); 
 	        $this->_getMapper()->insert($eventcard);
 	
 	        return $this->handleReturnValue($eventcard);
@@ -159,6 +164,43 @@ class EventcardsApiController extends PHPFrame_RESTfulController
 	            $this->_getMapper()->insert($eventcard);
             }
         }
+    }
+    
+    public function put($event_id, $card_id, $category_tag_id)
+    {
+        if (empty($event_id)) {
+            $event_id = null;
+        }
+        
+        if (empty($card_id)) {
+            $card_id = null;
+        }
+        
+        if (empty($category_tag_id)) {
+            $category_tag_id = null;
+        }
+        
+        //find eventcard
+        $params = array(":event_id"=>$event_id, ":card_id"=>$card_id);
+        
+        //check for existing/duplicate entry
+        $id_obj = $this->_getMapper()->getIdObject();
+        $id_obj->where('event_id','=',':event_id')
+        ->where('card_id','=',':card_id')
+        ->params(':event_id',$event_id)
+        ->params(':card_id',$card_id);
+        $eventcard = $this->_getMapper()->findOne($id_obj);
+                
+        if(!isset($eventcard) || !$eventcard->id())
+        {
+            $this->response()->statusCode(PHPFrame_Response::STATUS_NOT_FOUND);
+            return;
+        }
+        
+        $eventcard->category_tag_id($category_tag_id);  
+        $this->_getMapper()->insert($eventcard);
+        
+        return $this->handleReturnValue($eventcard);
     }
     
     public function delete($event_id, $card_id)
