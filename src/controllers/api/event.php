@@ -204,8 +204,8 @@ class EventApiController extends PHPFrame_RESTfulController
         	if(isset($private)) $event->private($private);
         	if(isset($password)) $event->password($password);
         	if(isset($owner)) $event->owner($owner);
-        	
-        	$event = $this->_getMapper()->insert($event);
+
+        	$this->_getMapper()->insert($event);
 
         	if(isset($eventtype)) {
 	        	//check duplicate eventtype entries
