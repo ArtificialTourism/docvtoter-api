@@ -63,7 +63,7 @@ class CardApiController extends PHPFrame_RESTfulController
      */
     public function get($id=null, $limit=10, $page=1, $tag_id=null,
         $tag_user=null, $owner=null, $include_owner=0, $event_id=null,
-        $category_id=null, $category_tag_id=null)
+        $category_id=null, $category_tag_id=null, $deck_id=null)
     {
         if (empty($id))         { $id = null; }
         if (empty($limit))      { $limit = 10; }
@@ -74,6 +74,7 @@ class CardApiController extends PHPFrame_RESTfulController
         if (empty($tag_id))     { $tag_id = null; }
         if (empty($tag_user))   { $tag_user = null; }
         if (empty($owner))      { $owner = null; }
+        if (empty($deck_id))    { $deck_id = null; }
 
         if ($include_owner == 1) {
             $this->_getMapper()->include_owner_object(true);
@@ -87,6 +88,7 @@ class CardApiController extends PHPFrame_RESTfulController
         } else {
             $ret = $this->_getMapper()->findBy(array(
                 "event_id"=>$event_id,
+                "deck_id"=>$deck_id,
                 "tag_id"=>$tag_id,
                 "tag_user"=>$tag_user,
                 "owner"=>$owner,
@@ -147,7 +149,7 @@ class CardApiController extends PHPFrame_RESTfulController
             return;
         }
         
-        $card = $this->_getMapper()->insert($card);
+        $this->_getMapper()->insert($card);
         
         //also record category_id as tag of type steep
         //fetch any duplicates
