@@ -214,9 +214,9 @@ class EventApiController extends PHPFrame_RESTfulController
 	            ->where('event_id','=',':event_id')
 	            ->params(':type_id',$eventtype)
 	            ->params(':event_id',$event->id());
-	            $eventeventtype = $this->_getCardtagsMapper()->findOne($id_obj);
+	            $eventeventtype = $this->_getEventeventtypeMapper()->findOne($id_obj);
 	        
-	            //create cardtag for category
+	            //create eventeventtype entry for category
 	            if(!$eventeventtype || $eventeventtype->id() == 0) {
 	            	$eventeventtype = new Eventeventtype();
 	            	$eventeventtype->type_id($eventtype);
