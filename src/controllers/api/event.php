@@ -230,7 +230,7 @@ class EventApiController extends PHPFrame_RESTfulController
             $this->response()->statusCode(PHPFrame_Response::STATUS_BAD_REQUEST);
         	return;
         }        
-                
+
         return $this->handleReturnValue($event);
     }
     
