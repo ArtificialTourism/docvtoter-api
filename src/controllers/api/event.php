@@ -181,6 +181,10 @@ class EventApiController extends PHPFrame_RESTfulController
             $start = null;
         }
         
+        if (empty($end)) {
+        	$end = null;
+        }
+        
         if (empty($owner)) {
             $owner = null;
         }
@@ -237,6 +241,9 @@ class EventApiController extends PHPFrame_RESTfulController
         if (empty($id)) {
             $id = null;
         }
+        
+        if(empty($tart))$start=null;
+        if(empty($end))$end=null;
     	
         //find event
         if(isset($id)) {
@@ -253,8 +260,8 @@ class EventApiController extends PHPFrame_RESTfulController
             if(isset($name)) $event->name($name);
             if(isset($description)) $event->description($description);
             if(isset($summary)) $event->summary($summary);
-            if (isset($start)) $event->start($start);
-            if(isset($end)) $event->end($end);
+            if (isset($start)) $event->start(intval($start));
+            if(isset($end)) $event->end(intval($end));
             if(isset($location_id)) $event->location_id($location_id);
             if(isset($initial_deck_id)) $event->initial_deck_id($initial_deck_id);
             if(isset($allow_anon)) $event->allow_anon($allow_anon);
