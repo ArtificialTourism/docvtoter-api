@@ -208,7 +208,7 @@ class CardApiController extends PHPFrame_RESTfulController
         
         //also record category_id as tag of type steep
         //fetch any duplicates
-        $id_obj = $this->_getCardttagsMapper()->getIdObject();
+        $id_obj = $this->_getCardtagsMapper()->getIdObject();
         $id_obj->where('card_id','=',':card_id')
         ->where('tag_id','=',':tag_id')
         ->params(':card_id',$card->id())
