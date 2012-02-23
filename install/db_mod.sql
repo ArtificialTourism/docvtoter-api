@@ -1,7 +1,2 @@
-INSERT INTO `api_methods` (`id` ,`method` ,`oauth` ,`cookie`) VALUES
-(NULL , 'collection/get', '2', '1'),
-(NULL , 'collection/post', '2', '0'),
-(NULL , 'collection/put', '2', '0'),
-(NULL , 'collection/delete', '2', '0');
-
-ALTER TABLE `event` ADD `initial_deck_id` INT( 11 ) NULL DEFAULT NULL AFTER `end`
+ALTER TABLE `card` CHANGE `name` `name` VARCHAR( 100 ) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL ,
+CHANGE `safe_name` `safe_name` VARCHAR( 100 ) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL 

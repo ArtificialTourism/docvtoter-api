@@ -10,13 +10,13 @@ class Card extends PHPFrame_PolymorphicPersistentObject
             "name",
             null,
             false,
-            new PHPFrame_StringFilter(array("max_length"=>50))
+            new PHPFrame_StringFilter(array("max_length"=>100))
         );
     	$this->addField(
             "safe_name",
             null,
             true,
-            new PHPFrame_StringFilter(array("max_length"=>50))
+            new PHPFrame_StringFilter(array("max_length"=>100))
         );
         $this->addField(
             "category_id",
