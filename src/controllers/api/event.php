@@ -170,7 +170,8 @@ class EventApiController extends PHPFrame_RESTfulController
     
     public function post($name, $start, $description=null, $summary=null, $end=null,
         $location_id=null, $initial_deck_id=null, $allow_anon=null, $auto_publish=null,
-        $auto_close=null, $owner=null, $private=null, $password=null, $eventtype=null
+        $auto_close=null, $owner=null, $private=null, $password=null, $eventtype=null,
+        $collection_id=null
     ) 
     {
         if (empty($name)) {
@@ -189,6 +190,10 @@ class EventApiController extends PHPFrame_RESTfulController
             $owner = null;
         }
         
+        if (empty($collection_id)) {
+            $collection_id = null;
+        }
+        
         if(isset($name) && isset($start)) {
         	$event = new Event();
         	$event->name($name);
@@ -204,6 +209,7 @@ class EventApiController extends PHPFrame_RESTfulController
         	if(isset($private)) $event->private($private);
         	if(isset($password)) $event->password($password);
         	if(isset($owner)) $event->owner($owner);
+        	if(isset($collection_id)) $event->collection_id($collection_id);
 
         	$this->_getMapper()->insert($event);
 
