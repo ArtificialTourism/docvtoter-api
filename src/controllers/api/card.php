@@ -204,7 +204,7 @@ class CardApiController extends PHPFrame_RESTfulController
         if(!is_null($owner)) $card->owner($owner);
         if(!is_null($params)) $card->params($params);
         
-        $card = $this->_getMapper()->insert($card);
+        $this->_getMapper()->insert($card);
         
         //also record category_id as tag of type steep
         //fetch any duplicates
