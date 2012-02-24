@@ -249,7 +249,7 @@ class EventApiController extends PHPFrame_RESTfulController
             $id = null;
         }
         
-        if(empty($tart))$start=null;
+        if(empty($start))$start=null;
         if(empty($end))$end=null;
         if(empty($collection_id))$collection_id=null;
     	
