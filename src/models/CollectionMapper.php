@@ -31,8 +31,8 @@ class CollectionMapper extends PHPFrame_Mapper
 
     public function findOne($id_obj)
     {
-        if (is_int($id_obj)){
-            $id = $id_obj;
+        if (is_numeric($id_obj)){
+            $id = intval($id_obj);
             $id_obj = $this->getIdObject();
             $id_obj->where('id', '=', ':id')
                 ->params(':id', $id);
