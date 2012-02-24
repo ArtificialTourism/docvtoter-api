@@ -80,18 +80,14 @@ class EventApiController extends PHPFrame_RESTfulController
             $this->_getMapper()->include_card_count(true);
         }
         
+        $id_obj = $this->_getMapper()->getIdObject();
+        $table = $id_obj->getTableName();
+        $id_obj->select($table.".*");
+        
         if(isset($id)) {
-        	$id_obj = $this->_getMapper()->getIdObject();
-            $table = $id_obj->getTableName();
-                    	
+        	//if found by id, override all other params and just return if found
         	$id_obj->where("$table.id","=",":id")
         	->params(":id",$id);
-        	
-        	if(isset($type)) {
-        		$id_obj->join('JOIN #__eventeventtype e ON e.event_id = '.$table.'.id')
-        		->where("e.type_id","=",":type_id")
-        		->params(":type_id",$type);
-        	}
         	
         	$ret = $this->_getMapper()->findOne($id_obj);
 
@@ -100,69 +96,38 @@ class EventApiController extends PHPFrame_RESTfulController
                 $this->response()->statusCode(PHPFrame_Response::STATUS_NOT_FOUND);
                 return;
             }
+            
+            return $this->handleReturnValue($ret);
+        }
+
+        if(isset($type)) {
+            $id_obj->join('JOIN #__eventeventtype e ON e.event_id = '.$table.'.id')
+            ->where("e.type_id","=",":type_id")
+            ->params(":type_id",$type);
         }
         
         if(isset($user)) {
-            $id_obj = $this->_getMapper()->getIdObject();
-            
-            if(isset($type)) {
-            	$table = $id_obj->getTableName();
-                $id_obj->join('JOIN #__eventeventtype e ON e.event_id = '.$table.'.id')
-                ->where("e.type_id","=",":type_id")
-                ->params(":type_id",$type);
-            }
-        	
-        	$ret = $this->_getMapper()->findByUser($user, $id_obj);
-        	
-            if(!isset($ret))
-            {
-                $this->response()->statusCode(PHPFrame_Response::STATUS_NOT_FOUND);
-                return;
-            }
+            $id_obj->join('JOIN eventusers e ON e.event_id = '.$table.'.id')
+            ->where("e.user_id", "=", ":user")
+            ->params(":user",$user);
         }
         
-        if(!isset($user) && !isset($id)) {
-        	
-            $id_obj = $this->_getMapper()->getIdObject();
-            
-            if(isset($type)) {
-            	$table = $id_obj->getTableName();
-                $id_obj->join('JOIN #__eventeventtype e ON e.event_id = '.$table.'.id')
-                ->where("e.type_id","=",":type_id")
-                ->params(":type_id",$type);
-            }
-            
-        	$ret = $this->_getMapper()->find($id_obj);
-        	
-            if(!isset($ret))
-            {
-                $this->response()->statusCode(PHPFrame_Response::STATUS_NOT_FOUND);
-                return;
-            }
+        if (isset($owner)) {
+        	$id_obj->where('owner', '=', ':owner')
+            ->params(':owner', $owner);
         }
 
-        if (isset($owner)) {
-        	
-            $id_obj = $this->_getMapper()->getIdObject();
-            
-            if(isset($type)) {
-            	$table = $id_obj->getTableName();
-                $id_obj->join('JOIN #__eventeventtype e ON e.event_id = '.$table.'.id')
-                ->where("e.type_id","=",":type_id")
-                ->params(":type_id",$type);
-            }
-        	
-            $ret = $this->_getMapper()->findByOwner($owner, $id_obj);
-            
-            if(!isset($ret))
-            {
-                $this->response()->statusCode(PHPFrame_Response::STATUS_NOT_FOUND);
-                return;
-            }
-        }
+        $ret = $this->_getMapper()->find($id_obj);
         
         $this->_getMapper()->include_owner_object(false);
         $this->_getMapper()->include_card_count(false);
+        
+        //handle 404
+        if(!isset($ret))
+        {
+            $this->response()->statusCode(PHPFrame_Response::STATUS_NOT_FOUND);
+            return;
+        }
 
         //return found event
         return $this->handleReturnValue($ret);
