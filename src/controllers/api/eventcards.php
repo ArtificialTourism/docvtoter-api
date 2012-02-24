@@ -25,7 +25,7 @@
  */
 class EventcardsApiController extends PHPFrame_RESTfulController
 {
-    private $_mapper, $_eventcards_mapper, $_deck_mapper;
+    private $_mapper, $_eventcards_mapper, $_deck_mapper, $_tags_mapper;
 
     /**
      * Constructor.
@@ -98,12 +98,14 @@ class EventcardsApiController extends PHPFrame_RESTfulController
         //verify existence of event and card
         $event = new PHPFrame_Mapper('event',$this->db());
         $event = $event->findOne(intval($event_id));
-        $event = isset($event) && $event->id() != 0;
-        if(!$event) {
+        if(!isset($event) || !$event->id()) {
             $this->response()->statusCode(PHPFrame_Response::STATUS_NOT_FOUND);
             return;
         }
 
+        //get event collection_id
+        $collection_id = $event->collection_id();
+        
         $db = $this->db();
         if(isset($card_id)) {
 	        $card = $this->_getCardMapper()->findOne(intval($card_id));
@@ -128,9 +130,27 @@ class EventcardsApiController extends PHPFrame_RESTfulController
 	            return $this->handleReturnValue($eventcard);
 	        }
 	        
-	        $eventcard = new Eventcards();
+            //GUESS CATEGORY FOR CARD IN EVENT COLLECTION
+            if(!isset($category_tag_id) && $collection_id != 1) {
+            	//guess category_tag_id
+            	$id_obj = $this->_getTagsMapper()->getIdObject();
+	            $table = $id_obj->getTableName();
+	            $id_obj->select($table.".*")
+	            ->join('JOIN #__collectiontags ct ON ct.tag_id = '.$table.'.id')
+	            ->join('JOIN #__eventcards ec ON ec.category_tag_id = '.$table.'_id')
+	            ->where("ct.collection_id","=",":collection_id")
+	            ->where("ec.card_id","=",":card_id")
+	            ->params(":collection_id",$type)
+	            ->params(":card_id",$type);
+	            $match = $this->_getMapper()->findOne($id_obj);
+	            if(isset($match) && $match->id()) {
+	                $category_tag_id = $match->category_tag_id(); 
+	            }
+            }
+
+            $eventcard = new Eventcards();
 	        $eventcard->event_id($event_id);
-	        $eventcard->card_id($card_id); 
+	        $eventcard->card_id($card_id);
 	        if(isset($category_tag_id)) $eventcard->category_tag_id($category_tag_id); 
 	        $this->_getMapper()->insert($eventcard);
 	
@@ -140,6 +160,24 @@ class EventcardsApiController extends PHPFrame_RESTfulController
             if(!isset($deck) || !$deck->id()) {
                 $this->response()->statusCode(PHPFrame_Response::STATUS_NOT_FOUND);
                 return;
+            }
+            
+            if($collection_id != 1) {
+            	//create card_id=>category_tag_id map for collection and deck
+            	$id_obj = $this->_getMapper()->getIdObject();
+            	$table = $id_obj->getTableName();
+	            $id_obj->select("$table.card_id, '0' as 'event_id', ct.tag_id as 'category_tag_id'")
+	            ->from('#__eventcards')
+	            ->join('JOIN #__deckcards dc ON dc.card_id = #__eventcards.card_id')
+	            ->join('JOIN #__collectiontags ct ON ct.tag_id = #__eventcards.category_tag_id')
+	            ->where("ct.collection_id","=",":collection_id")
+	            ->params(":collection_id",$collection_id);
+	            $category_map = $this->_getMapper()->find($id_obj);
+	            
+	            $card_category = array();
+	            foreach($category_map as $eventcard) {
+	                $card_category[$eventcard->card_id()] = $eventcard->category_tag_id();
+	            }
             }
             
             foreach($deck->cards() as $card) {
@@ -157,10 +195,14 @@ class EventcardsApiController extends PHPFrame_RESTfulController
 	            {
 	                return $this->handleReturnValue($eventcard);
 	            }
-	            
+
 	            $eventcard = new Eventcards();
 	            $eventcard->event_id($event_id);
-	            $eventcard->card_id($card->id());  
+	            $eventcard->card_id($card->id());
+	            //add guessed category_tag_id if there is one
+                if(isset($card_category[$card->id()])) {
+                    $eventcard->category_tag_id($card_category[$card->id()]);
+                }  
 	            $this->_getMapper()->insert($eventcard);
             }
         }
@@ -282,5 +324,20 @@ class EventcardsApiController extends PHPFrame_RESTfulController
         }
 
         return $this->_eventcards_mapper;
+    }
+    
+    /**
+     * Get instance of TagsMapper.
+     *
+     * @return TagsMapper
+     * @since  1.0
+     */
+    private function _getTagsMapper()
+    {
+        if (is_null($this->_tags_mapper)) {
+            $this->_tags_mapper = new PHPFrame_Mapper('tags',$this->db());
+        }
+
+        return $this->_tags_mapper;
     }
 }
