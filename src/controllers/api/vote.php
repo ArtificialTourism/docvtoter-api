@@ -25,7 +25,7 @@
  */
 class VoteApiController extends PHPFrame_RESTfulController
 {
-    private $_mapper;
+    private $_mapper, $_eventcards_mapper;
 
     /**
      * Constructor.
@@ -85,23 +85,12 @@ class VoteApiController extends PHPFrame_RESTfulController
 
     }
     
-    public function post($eventcards_id=null, $event_safe_name=null, $card_id=null, $ip_address=null, $owner=null)
+    public function post($eventcards_id=null, $event_safe_name=null, $event_id=null, $card_id=null, $ip_address=null, $owner=null)
     {
-        if (empty($eventcards_id)) {
-            $eventcards_id = null;
-        }
-
-        if (empty($event_safe_name)) {
-            $event_safe_name = null;
-        }
-
-        if (empty($card_id)) {
-            $card_id = null;
-        }
-        
-        if (empty($owner)) {
-            $owner = null;
-        }
+        if (empty($eventcards_id)) { $eventcards_id = null; }
+        if (empty($event_safe_name)) { $event_safe_name = null; }
+        if (empty($card_id)) { $card_id = null; }
+        if (empty($owner)) { $owner = null; }
 
         if (!is_null($event_safe_name) && !is_null($card_id)) {
             $event_mapper = new PHPFrame_Mapper('event', $this->db());
@@ -145,18 +134,39 @@ class VoteApiController extends PHPFrame_RESTfulController
                 return $this->handleReturnValue($vote);
             }
         }
+        
+        if(!is_null($event_id) && !is_null($card_id) && !is_null($owner)) {
+        	$id_obj = $this->_getEventcardsMapper()->getIdObject();
+        	$id_obj->where("event_id",'=',":event_id")
+        	->where("card_id",'=',":card_id")
+        	->params(":event_id",$event_id)
+        	->params(":card_id",$card_id);
+        	$eventcard = $this->_getEventcardsMapper()->findOne($id_obj);
+        	if(!isset($eventcard) || !$eventcard->id()) {
+        		$this->response()->statusCode(PHPFrame_Response::STATUS_NOT_FOUND);
+                return;
+        	}
+        	$eventcards_id = $eventcard->id();
+        	$vote = new Vote();
+        	$vote->eventcards_id($eventcards_id);
+        	$vote->owner($owner);
+        	$this->_getMapper()->insert($vote);
+        }
 
         if(!isset($vote) || !$vote->id()) {
             $this->response()->statusCode(PHPFrame_Response::STATUS_BAD_REQUEST);
             return;
         }
+        
+        return $this->handleReturnValue($vote);
     }
     
-    public function delete($id)
+    public function delete($id=null, $event_id=null, $card_id=null, $owner=null)
     {
-        if (empty($id)) {
-            $id = null;
-        }
+        if (empty($id)) { $id = null; }
+        if (empty($event_id)) { $event_id = null; }
+        if (empty($card_id)) { $card_id = null; }
+        if (empty($owner)) { $owner = null; }
         
         //find vote
         if(isset($id)) {
@@ -171,6 +181,27 @@ class VoteApiController extends PHPFrame_RESTfulController
             
             //delete vote
             $this->_getMapper()->delete($vote);
+        } elseif(isset($event_id) && isset($card_id) && isset($owner)) {
+        	//find vote by eventcard card_id & event_id & vote owner
+        	$id_obj = $this->_getMapper()->getIdObject();
+        	$table = $id_obj->getTableName();
+        	$id_obj->select("$table.*")
+        	->join("JOIN #__eventcards ec ON $table.eventcards_id = ec.id")
+        	->where("ec.event_id","=",":event_id")
+        	->where("ec.card_id","=",":card_id")
+        	->where("$table.owner","=",":owner")
+        	->params(":event_id",$event_id)
+        	->params(":card_id",$card_id)
+        	->params(":owner",$owner);
+        	$vote = $this->_getMapper()->findOne($id_obj);
+        	if(!isset($vote) || !$vote->id()) {
+        		$this->response()->statusCode(PHPFrame_Response::STATUS_NOT_FOUND);
+                return;
+        	}
+        	$this->_getMapper()->delete($vote);
+        } else {
+        	$this->response()->statusCode(PHPFrame_Response::STATUS_BAD_REQUEST);
+            return;
         }
     }
     
@@ -187,5 +218,20 @@ class VoteApiController extends PHPFrame_RESTfulController
         }
 
         return $this->_mapper;
+    }
+    
+    /**
+     * Get instance of EventcardsMapper.
+     *
+     * @return VoteMapper
+     * @since  1.0
+     */
+    private function _getEventcardsMapper()
+    {
+        if (is_null($this->_eventcards_mapper)) {
+            $this->_eventcards_mapper = new PHPFrame_Mapper('eventcards',$this->db());
+        }
+
+        return $this->_eventcards_mapper;
     }
 }
