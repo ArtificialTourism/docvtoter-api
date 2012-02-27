@@ -113,7 +113,7 @@ class EventApiController extends PHPFrame_RESTfulController
         }
         
         if (isset($owner)) {
-        	$id_obj->where('owner', '=', ':owner')
+        	$id_obj->where($table.'.owner', '=', ':owner')
             ->params(':owner', $owner);
         }
 
