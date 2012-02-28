@@ -12,7 +12,7 @@ class VoteMapper extends PHPFrame_Mapper
     
     public function findByEventId($event_id)
     {
-        $db = $this->_db;
+    	$db = $this->_db;
         $id_obj = $this->getIdObject();
         $table = $id_obj->getTableName();
 
@@ -23,12 +23,9 @@ class VoteMapper extends PHPFrame_Mapper
        END as category_tag_id, count($table.id) as total FROM $table";
         $sql .= " RIGHT JOIN eventcards e ON e.id = $table.eventcards_id";
         $sql .= " JOIN card c ON c.id = e.card_id";
-        $sql .= " LEFT JOIN tags a ON a.id = e.category_tag_id";
-        $sql .= " LEFT JOIN tags b ON b.id = c.category_id";
         $sql .= " WHERE e.event_id = :event_id";
-        $sql .= " GROUP BY $table.eventcards_id";
+        $sql .= " GROUP BY card_id";
         $sql .= " ORDER BY c.id DESC";
-
         $params = array(":event_id"=>$event_id);
         $cards = $db->fetchAssocList($sql, $params);
 
