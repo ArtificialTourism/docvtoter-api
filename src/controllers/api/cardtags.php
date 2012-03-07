@@ -48,7 +48,7 @@ class CardtagsApiController extends PHPFrame_RESTfulController
      * @return array        an array containing tags objects.
      * @since  1.0
      */
-    public function get($card_id, $tag_id=null)
+    public function get($card_id, $tag_id=null, $type="tag")
     {
         if (empty($card_id)) {
             $card_id = null;
@@ -66,6 +66,10 @@ class CardtagsApiController extends PHPFrame_RESTfulController
             if(isset($tag_id)) {
                 $id_obj->where('tag_id','=',':tag_id')
                 ->params(':tag_id',$tag_id);
+            } elseif(isset($type) && !empty($type)) {
+            	$id_obj->join("JOIN #__tags t ON t.id = tag_id")
+            	->where('t.type','=',':type')
+            	->params(':type',$type);
             }
             $ret = $this->_getMapper()->find($id_obj);
         }
