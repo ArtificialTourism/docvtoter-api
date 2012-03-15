@@ -171,7 +171,7 @@ class CardApiController extends PHPFrame_RESTfulController
     }
     
     public function put($id, $name=null, $safe_name=null, $category_id=null,
-        $type=null, $topic_id=null, $question=null, $factoid=null, $description=null,
+        $type=null, $status=null, $topic_id=null, $question=null, $factoid=null, $description=null,
         $image=null, $card_front=null, $card_back=null, $origin_event_id=null,
         $uri=null, $params=null, $owner=null
     )
@@ -192,6 +192,7 @@ class CardApiController extends PHPFrame_RESTfulController
         if(!is_null($safe_name)) $card->safe_name($safe_name);
         if(!is_null($category_id)) $card->category_id($category_id);
         if(!is_null($type)) $card->type($type);
+        if(!is_null($status)) $card->status($status);
         if(!is_null($topic_id)) $card->topic_id($topic_id);
         if(!is_null($question)) $card->question($question);
         if(!is_null($factoid)) $card->factoid($factoid);
