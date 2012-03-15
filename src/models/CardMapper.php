@@ -95,6 +95,10 @@ class CardMapper extends PHPFrame_Mapper
         	$id_obj->where($table.'.owner', '=', ':owner')
             ->params(':owner', $owner);
         }
+        if(isset($status)) {
+        	$id_obj->where($table.'.status', '=', ':status')
+        	->params(':status', $status);
+        }
         if(isset($category_tag_id)) {
         	if(!$this->_event_id && !isset($event_id)) {
         	   	$category_id = $category_tag_id;

@@ -63,7 +63,7 @@ class CardApiController extends PHPFrame_RESTfulController
      */
     public function get($id=null, $limit=10, $page=1, $tag_id=null,
         $tag_user=null, $owner=null, $include_owner=0, $event_id=null,
-        $category_id=null, $category_tag_id=null, $deck_id=null)
+        $category_id=null, $category_tag_id=null, $deck_id=null,  $status=null)
     {
         if (empty($id))         { $id = null; }
         if (empty($limit))      { $limit = 10; }
@@ -75,6 +75,7 @@ class CardApiController extends PHPFrame_RESTfulController
         if (empty($tag_user))   { $tag_user = null; }
         if (empty($owner))      { $owner = null; }
         if (empty($deck_id))    { $deck_id = null; }
+        if (empty($status))     { $status = null; }
 
         if ($include_owner == 1) {
             $this->_getMapper()->include_owner_object(true);
@@ -92,6 +93,7 @@ class CardApiController extends PHPFrame_RESTfulController
                 "tag_id"=>$tag_id,
                 "tag_user"=>$tag_user,
                 "owner"=>$owner,
+            	"status"=>$status,
                 "category_id"=>$category_id,
                 "category_tag_id"=>$category_tag_id,
                 "page"=>$page,
