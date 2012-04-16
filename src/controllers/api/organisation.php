@@ -67,7 +67,7 @@ class OrganisationApiController extends PHPFrame_RESTfulController
         	$ret = $this->_getMapper()->find();
         }
 
-        $this->logger()->write(print_r($ret, true));
+//         $this->logger()->write(print_r($ret, true));
         
         //organisation(s) not found for some reason, set error status code
         if(!isset($ret)) {
