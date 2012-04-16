@@ -58,7 +58,7 @@ class OauthApiController extends PHPFrame_RESTfulController
             $this->_getTokensMapper()->insert($token);
         } catch (Exception $e) {
             $this->response()->body(OAuthProvider::reportProblem($e));
-$this->logger(print_r($e, true));            
+// $this->logger(print_r($e, true));
             return;
         }
 
