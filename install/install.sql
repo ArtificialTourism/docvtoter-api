@@ -412,6 +412,7 @@ CREATE TABLE IF NOT EXISTS `role` (
 
 CREATE TABLE IF NOT EXISTS `tags` (
   `name` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `type` varchar(64) COLLATE utf8_unicode_ci NOT NULL,
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `ctime` int(11) DEFAULT NULL,
   `mtime` int(11) DEFAULT NULL,
