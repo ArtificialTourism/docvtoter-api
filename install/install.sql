@@ -92,7 +92,8 @@ INSERT INTO `api_methods` (`id`, `method`, `oauth`, `cookie`) VALUES
 (69, 'collection/get', '2', '1'),
 (70, 'collection/post', '2', '0'),
 (71, 'collection/put', '2', '0'),
-(72, 'collection/delete', '2', '0');
+(72, 'collection/delete', '2', '0'),
+(73, 'eventcards/put', '2', '0');
 
 -- --------------------------------------------------------
 
@@ -4026,7 +4027,7 @@ CREATE TABLE IF NOT EXISTS `oauth_clients` (
 INSERT INTO `oauth_clients` (`name`, `version`, `vendor`, `key`, `secret`, `hosted`, `status`, `id`, `ctime`, `mtime`, `owner`, `group`, `perms`) VALUES
 ('API Browser', '1.0', 'Mashine Project', 'eb9e55feac986debc4c5db1e9162f5', 'c2429b8871', 0, 'active', 1, 1308230700, 1308230700, 0, 2, 660),
 ('Voter app', '1.0', 'Arup Foresight', '204ba5f61f480ffac6270526c973f4', '3302e0c37e', 0, 'active', 2, 1308230700, 1308230700, 0, 2, 660),
-('Card Builder app', '', 'Arup Foresight', '24fb86ba12e0a85b6a815cce1a970b', 'd212c25101', 1, 'active', 3, 1380988199, 1380988199, 0, 2, 660);
+('Card Builder app', '1.0', 'Arup Foresight', '24fb86ba12e0a85b6a815cce1a970b', 'd212c25101', 1, 'active', 3, 1380988199, 1380988199, 0, 2, 660);
 
 -- --------------------------------------------------------
 
